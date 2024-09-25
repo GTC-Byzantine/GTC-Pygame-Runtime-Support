@@ -9,24 +9,32 @@ pygame.init()
 
 class FeedbackButton(BasicButton):
     # 初始化反馈按钮
-    def __init__(self, size, pos: List[int], text: str, text_size: int,
-                 surface: pygame.Surface, bg_color=(30, 255, 189), border_color=(255, 255, 255),
-                 change_color: Tuple[Tuple[int, int, int], Tuple[int, int, int]] = ((0, 112, 255), (0, 255, 112)),
-                 text_color: List[int] = (0, 0, 0), speed: int = 2, font_type: str = 'microsoftyahei'):
+    def __init__(self, size, pos, text, text_size, surface, bg_color=(30, 255, 189), border_color=(255, 255, 255),
+                 change_color=((0, 112, 255), (0, 255, 112)), text_color=(0, 0, 0), speed=2, font_type='SimHei'):
         """
 
         :param size:
         :type size:             List[int, int] | (int, int)
         :param pos:
+        :type pos:              List[int, int] | (int, int)
         :param text:
+        :type text:             str
         :param text_size:
+        :type text_size:        int
         :param surface:
+        :type surface:          pygame.surface.SurfaceType | pygame.surface.Surface
         :param bg_color:
+        :type bg_color:         (int, int, int) | List[int, int, int]
         :param border_color:
+        :type border_color:     (int, int, int) | List[int, int, int]
         :param change_color:
+        :type change_color:     ((int, int, int), (int, int, int))
         :param text_color:
+        :type text_color:       (int, int, int) | List[int, int, int]
         :param speed:
+        :type speed:            int
         :param font_type:
+        :type font_type:        str
         """
         self.size = size
         self.pos = pos
@@ -106,11 +114,39 @@ class FeedbackButton(BasicButton):
 class DelayButton(BasicButton):
     # 初始化延迟响应按钮
     def __init__(self, size, pos, text, text_size, surface, bg_color=(30, 255, 189), border_color=(255, 255, 255),
-                 change_color=((0, 112, 255), (0, 255, 112)), text_color=(0, 0, 0), speed=2):
+                 change_color=((0, 112, 255), (0, 255, 112)), text_color=(0, 0, 0), speed=2, font_type='SimHei'):
+        """
+
+               :param size:
+               :type size:             List[int, int] | (int, int)
+               :param pos:
+               :type pos:              List[int, int] | (int, int)
+               :param text:
+               :type text:             str
+               :param text_size:
+               :type text_size:        int
+               :param surface:
+               :type surface:          pygame.Surface
+               :param bg_color:
+               :type bg_color:         (int, int, int) | List[int, int, int]
+               :param border_color:
+               :type border_color:     (int, int, int) | List[int, int, int]
+               :param change_color:
+               :type change_color:     ((int, int, int), (int, int, int))
+               :param text_color:
+               :type text_color:       (int, int, int) | List[int, int, int]
+               :param speed:
+               :type speed:            int
+               :param font_type:
+               :type font_type:        str
+               """
         self.size = size
         self.pos = pos
         # 使用默认的黑体字体
-        self.text = pygame.font.SysFont('SimHei', text_size).render(text, True, text_color)
+        if os.path.exists(font_type):
+            self.text = pygame.font.Font(font_type, text_size).render(text, True, text_color)
+        else:
+            self.text = pygame.font.SysFont(font_type, text_size).render(text, True, text_color)
         self.color = [bg_color, border_color, change_color]
         self.font_rect = self.text.get_rect()
         self.font_rect.center = (pos[0] + size[0] // 2,

@@ -16,7 +16,7 @@ class BasicPage:
         :param pos:             在目标 Surface 的位置
         :type pos:              (int, int) | List[int, int]
         :param screen:          目标 Surface 对象
-        :type screen:           pygame.Surface | None
+        :type screen:           pygame.Surface | pygame.surface.SurfaceType | None
 
         """
         self.size = [width, height]
