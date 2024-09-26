@@ -1,7 +1,7 @@
 import pygame
 from typing import *
 import os
-from .basic_class import BasicButton
+from basic_class import *
 
 
 class SimpleButtonWithImage(BasicButton):
@@ -13,6 +13,7 @@ class SimpleButtonWithImage(BasicButton):
                  bg_image: pygame.Surface or None = None,
                  text: Tuple[str, Tuple[int, int], int, Tuple[int, int, int]] or None = None,
                  font: str = 'SimHei'):
+        super().__init__()
         self.size = size
         self.bg_color = bg_color
         self.hovering = hovering_color
@@ -29,6 +30,7 @@ class SimpleButtonWithImage(BasicButton):
         self.text_color = None
         self.text_pos = [text[1][0] + pos[0], text[1][1] + pos[1]]
         self.cp = []
+        self.last_clicked = False
         if text is not None:
             self.text_size = text[2]
             self.text_color = text[3]
@@ -48,6 +50,9 @@ class SimpleButtonWithImage(BasicButton):
         if self._in_area(mouse_pos):
             if effectiveness and not self.lock:
                 self.state = True
+                if not self.last_clicked:
+                    self.do_cancel = False
+                    self.last_clicked = True
                 pygame.draw.rect(self.surface, self.clicking, [self.pos[0], self.pos[1], self.size[0], self.size[1]])
             else:
                 self.state = False
@@ -57,11 +62,12 @@ class SimpleButtonWithImage(BasicButton):
 
         else:
             pygame.draw.rect(self.surface, self.bg_color, [self.pos[0], self.pos[1], self.size[0], self.size[1]])
-
             if effectiveness:
                 self.lock = True
             else:
                 self.lock = False
+        if not self.state:
+            self.last_clicked = False
         if self.bg_image is not None:
             self.surface.blit(self.bg_image, self.pos)
         pygame.draw.rect(self.surface, (0, 0, 0), [self.pos[0], self.pos[1], self.size[0], self.size[1]],
@@ -70,21 +76,3 @@ class SimpleButtonWithImage(BasicButton):
         if self.text_ini is not None:
             self.surface.blit(self.text, self.text.get_rect(center=self.text_pos))
 
-
-if __name__ == "__main__":
-    pygame.init()
-    sc = pygame.display.set_mode((500, 500))
-    button = SimpleButtonWithImage([50, 100], sc, bg_image=pygame.image.load('../Data/Image/p1.png'),
-                                   text=['文件夹', (100, 150), 25, (0, 0, 0)], font='../ddjbt.ttf')
-    button1 = SimpleButtonWithImage([300, 100], sc, bg_image=pygame.image.load('../Data/Image/p5.png'),
-                                    text=['markdown', (100, 150), 25, (0, 0, 0)], font='../ddjbt.ttf')
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                exit()
-        sc.fill((255, 255, 255))
-        button.operate(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3)[0])
-        button1.operate(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3)[0])
-        print(button.state)
-
-        pygame.display.update()

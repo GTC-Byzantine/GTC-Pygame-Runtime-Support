@@ -1,4 +1,9 @@
-class BasicButton:
+class BasicButton(object):
+    state = False
+
+    def __init__(self):
+        self.do_cancel = False
+
     def operate(self, mouse_pos, effectiveness):
         """
 
@@ -8,4 +13,8 @@ class BasicButton:
         :type effectiveness:        bool
         :return:
         """
-        pass
+        self.do_cancel: bool = False
+
+    def cancel(self):
+        self.state = False
+        self.do_cancel = True
