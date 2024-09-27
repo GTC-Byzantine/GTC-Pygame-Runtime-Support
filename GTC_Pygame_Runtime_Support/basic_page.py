@@ -43,6 +43,11 @@ class BasicPage:
             return True
         return False
 
+    def _reverse(self):
+        if self.pos_y > 0:
+            self.pos_y /= 1.3
+            self.speed = 0
+
     def operate(self, mouse_pos, effectiveness):
         """
         :param mouse_pos:
@@ -73,15 +78,21 @@ class BasicPage:
                     self.speed = self.delta / self.ps
                     print(self.speed)
                     self.delta = 0
+
                 else:
+                    self._reverse()
                     self.pos_y += self.speed
-                    if self.speed > 0:
-                        self.speed -= self.acc
-                    elif self.speed < 0:
-                        self.speed += self.acc
-                    if abs(self.speed) < 5:
-                        self.speed = 0
+                    self.speed /= 1.1
+                    # if self.speed > 0:
+                    #     self.speed -= self.acc
+                    # elif self.speed < 0:
+                    #     self.speed += self.acc
+                    # if abs(self.speed) < 5:
+                    #     self.speed = 0
         else:
+            self._reverse()
+            self.pos_y += self.speed
+            self.speed /= 1.1
             if effectiveness:
                 self.lock = True
             else:
