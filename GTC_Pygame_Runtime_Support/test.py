@@ -4,7 +4,7 @@ import pygame
 import basic_page
 
 screen = pygame.display.set_mode((500, 500))
-bp = basic_page.BasicPage([300, 300], [300, 1000], [100, 100], screen, 0.5)
+bp = basic_page.BasicPage([300, 300], [300, 1000], [100, 100], screen, 1.4)
 
 if __name__ == '__main__':
     clock = pygame.time.Clock()

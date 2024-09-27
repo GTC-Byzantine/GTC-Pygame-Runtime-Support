@@ -45,8 +45,10 @@ class BasicPage:
 
     def _reverse(self):
         if self.pos_y > 0:
-            self.pos_y /= 1.3
+            self.pos_y /= self.acc
             self.speed = 0
+        elif self.pos_y < self.size[1] - self.real_size[1]:
+            self.pos_y = (self.pos_y + self.real_size[1] - self.size[1]) / self.acc + self.size[1] - self.real_size[1]
 
     def operate(self, mouse_pos, effectiveness):
         """
@@ -75,24 +77,17 @@ class BasicPage:
                 elif self.pre_click and not effectiveness:
                     self.sliding = False
                     self.pos_y += self.delta
-                    self.speed = self.delta / self.ps
                     print(self.speed)
                     self.delta = 0
 
                 else:
                     self._reverse()
                     self.pos_y += self.speed
-                    self.speed /= 1.1
-                    # if self.speed > 0:
-                    #     self.speed -= self.acc
-                    # elif self.speed < 0:
-                    #     self.speed += self.acc
-                    # if abs(self.speed) < 5:
-                    #     self.speed = 0
+                    self.speed /= self.acc
         else:
             self._reverse()
             self.pos_y += self.speed
-            self.speed /= 1.1
+            self.speed /= self.acc
             if effectiveness:
                 self.lock = True
             else:
