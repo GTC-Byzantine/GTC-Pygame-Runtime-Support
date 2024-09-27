@@ -1,101 +1,122 @@
 import pygame
 from typing import List
 from basic_class import *
+from error import *
 
 
 class BasicPage:
 
-    def __init__(self, show_size, real_size, pos, screen=None, acc=1):
+    def __init__(self, show_size, real_size, pos, screen=None, acc=1, wheel_support=False):
         """
 
-        :param show_size:
+        :param show_size:           显示的大小
         :type show_size:            Tuple[int, int] | List[int, int]
-        :param real_size:
-        :type real_size:           Tuple[int, int] | List[int, int]
-        :param pos:             在目标 Surface 的位置
-        :type pos:              Tuple[int, int] | List[int, int]
-        :param screen:          目标 Surface 对象
-        :type screen:           pygame.Surface | pygame.surface.SurfaceType | None
-        :param acc:
-        :type acc:              float
+        :param real_size:           实际的大小
+        :type real_size:            Tuple[int, int] | List[int, int]
+        :param pos:                 在目标 Surface 的位置
+        :type pos:                  Tuple[int, int] | List[int, int]
+        :param screen:              目标 Surface 对象
+        :type screen:               pygame.Surface | pygame.surface.SurfaceType | None
+        :param acc:                 动画加速度
+        :type acc:                  float
+        :param wheel_support:       是否支持滚轮
+        :type wheel_support:        bool
         """
-        self.size = show_size
-        self.real_size = real_size
-        self.frame = pygame.Surface(self.size)
-        self.surface = pygame.Surface(self.real_size)
-        self.pos = pos
-        self.screen = screen
-        self.sliding = False
-        self.button_trusteeship: List[BasicButton] = []
-        self.delta = 0
-        self.pos_y = 0
-        self.pre_click = False
-        self.pre_pos: List[int] = [0, 0]
-        self.acc = acc
-        self.speed = 0
-        self.last_delta = 0
-        self.ps = 0
-        self.lock = False
+        self._size = show_size
+        self._real_size = real_size
+        self._frame = pygame.Surface(self._size)
+        self.surface = pygame.Surface(self._real_size)
+        self._pos = pos
+        self._screen = screen
+        self._sliding = False
+        self._button_trusteeship: List[BasicButton] = []
+        self._delta = 0
+        self._pos_y = 0
+        self._pre_click = False
+        self._pre_pos: List[int] = [0, 0]
+        self._acc = acc
+        self._speed = 0
+        self._last_delta = 0
+        self._ps = 0
+        self._lock = False
+        self._wheel_support = wheel_support
+
+    def _add_button_trusteeship(self, button):
+        if not isinstance(button, BasicButton):
+            raise UnexpectedParameter(error0x02.format(BasicButton.__class__.__name__))
+        self._button_trusteeship.append(button)
 
     def _in_area(self, mouse_pos):
-        if self.pos[0] <= mouse_pos[0] <= self.size[0] + self.pos[0] and self.pos[1] <= mouse_pos[1] <= self.size[1] + \
-                self.pos[1]:
+        if self._pos[0] <= mouse_pos[0] <= self._size[0] + self._pos[0] and self._pos[1] <= mouse_pos[1] <= self._size[
+            1] + \
+                self._pos[1]:
             return True
         return False
 
     def _reverse(self):
-        if self.pos_y > 0:
-            self.pos_y /= self.acc
-            self.speed = 0
-        elif self.pos_y < self.size[1] - self.real_size[1]:
-            self.pos_y = (self.pos_y + self.real_size[1] - self.size[1]) / self.acc + self.size[1] - self.real_size[1]
+        if self._pos_y > 0:
+            self._pos_y /= self._acc
+        elif self._pos_y < self._size[1] - self._real_size[1]:
+            self._pos_y = (self._pos_y + self._real_size[1] - self._size[1]) / self._acc + self._size[1] - \
+                          self._real_size[1]
 
-    def operate(self, mouse_pos, effectiveness):
+    def operate(self, mouse_pos, effectiveness, mouse_wheel_status=None):
         """
         :param mouse_pos:
         :type mouse_pos:            List[int, int] | (int, int)
         :param effectiveness:
         :type effectiveness:        bool
+        :param mouse_wheel_status:
+        :type mouse_wheel_status:   [bool, bool] | None
+
         :return:                    None
+
         """
-        if self._in_area(mouse_pos) or self.sliding:
-            if not self.lock:
-                if not self.pre_click and effectiveness:
-                    self.pre_pos = mouse_pos
-                    self.ps = 1
-                    self.sliding = False
-                    self.lock = False
+        if self._in_area(mouse_pos) and self._wheel_support:
+            if mouse_wheel_status is None:
+                raise UnexpectedParameter(error0x01)
+            if mouse_wheel_status[0]:
+                self._speed = -20
+            elif mouse_wheel_status[1]:
+                self._speed = 20
+        if self._in_area(mouse_pos) or self._sliding:
+            if not self._lock:
+                if not self._pre_click and effectiveness:
+                    self._pre_pos = mouse_pos
+                    self._ps = 1
+                    self._sliding = False
+                    self._lock = False
 
-                elif self.pre_click and effectiveness:
-                    if self.pre_pos != mouse_pos:
-                        self.sliding = True
-                    self.delta = mouse_pos[1] - self.pre_pos[1]
-                    self.speed = self.delta - self.last_delta
-                    self.last_delta = self.delta
-                    self.ps += 1
+                elif self._pre_click and effectiveness:
+                    if self._pre_pos != mouse_pos:
+                        self._sliding = True
+                    self._delta = mouse_pos[1] - self._pre_pos[1]
+                    self._speed = self._delta - self._last_delta
+                    self._last_delta = self._delta
+                    self._ps += 1
 
-                elif self.pre_click and not effectiveness:
-                    self.sliding = False
-                    self.pos_y += self.delta
-                    print(self.speed)
-                    self.delta = 0
+                elif self._pre_click and not effectiveness:
+                    self._sliding = False
+                    self._pos_y += self._delta
+                    print(self._speed)
+                    self._delta = 0
 
                 else:
                     self._reverse()
-                    self.pos_y += self.speed
-                    self.speed /= self.acc
+                    self._pos_y += self._speed
+                    self._speed /= self._acc
         else:
             self._reverse()
-            self.pos_y += self.speed
-            self.speed /= self.acc
+            self._pos_y += self._speed
+            self._speed /= self._acc
             if effectiveness:
-                self.lock = True
+                self._lock = True
             else:
-                self.lock = False
-        self.frame.fill((0, 0, 0))
-        self.frame.blit(self.surface, (0, self.pos_y + self.delta))
-        if self.screen is not None:
-            self.screen.blit(self.frame, self.pos)
+                self._lock = False
+        self._frame.fill((0, 0, 0))
+        self._frame.blit(self.surface, (0, self._pos_y + self._delta))
+        if self._screen is not None:
+            self._screen.blit(self._frame, self._pos)
 
-        self.pre_click = effectiveness
+        self._pre_click = effectiveness
         # print(self.pos_y, self.sliding)

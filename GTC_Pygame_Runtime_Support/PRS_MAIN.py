@@ -1,12 +1,118 @@
-import sys
 import pygame
-import os
 from typing import List, Tuple
-from basic_class import *
+import os
 
-pygame.init()
+error0x01 = '滚轮支持开启后，mouse_wheel_status 应为(bool, bool)而非 None'
+error0x02 = '参数应为 {} 的实例'
 
 
+# from basic_class
+class BasicButton(object):
+    state = False
+
+    def __init__(self):
+        self.do_cancel = False
+
+    def operate(self, mouse_pos, effectiveness):
+        """
+
+        :param mouse_pos:
+        :type mouse_pos:            (int, int)
+        :param effectiveness:
+        :type effectiveness:        bool
+        :return:
+        """
+        self.do_cancel: bool = False
+
+    def cancel(self):
+        self.state = False
+        self.do_cancel = True
+
+
+# from error
+class UnexpectedParameter(Exception):
+    def __init__(self, info):
+        super().__init__()
+        self.info = info
+
+    def __str__(self):
+        return self.info
+
+
+# from progress_bar
+class ProgressBar:
+    process = 0
+
+    def __init__(self, width: int, height: int, target: pygame.Surface, pos: List[int],
+                 color: Tuple[Tuple[int, int, int], Tuple[int, int, int]] = ([0, 0, 0], [0, 255, 0]), sep: int = 5,
+                 border=None):
+        self.surface = pygame.Surface((width, height))
+        self.background_color = color[0]
+        self.bar_color = color[1]
+        self.sep = sep
+        self.height = height
+        self.width = width
+        self.screen = target
+        self.pos = pos
+        self.border = border
+
+    def next(self):
+        self.process += self.sep
+        self.surface.fill(self.background_color)
+        if self.border is not None:
+            pygame.draw.rect(self.surface, self.border, (0, 0, self.width, self.height), width=1)
+        pygame.draw.rect(self.surface, self.bar_color, (0, 0, self.process, self.height))
+        self.screen.blit(self.surface, self.pos)
+
+
+# from slider
+class Slider:
+
+    def __init__(self, background: pygame.Surface, acceleration: float, surface: pygame.Surface,
+                 direction: tuple[int, int] = (1, 0), initial_speed: int = 5, previous_image=None,
+                 slide_with=False, screen_background=None):
+        self.size = surface.get_size()
+        self.image = pygame.transform.scale(background, self.size)
+        self.acceleration = acceleration
+        self.speed: float = 0
+        self.surface = surface
+        if not isinstance(direction, tuple) or direction[0] not in [-1, 0, 1] or direction[1] not in [-1, 0, 1]:
+            raise TypeError('666 不看文档嘛')
+        self.start_pos = [direction[0] * self.size[0], direction[1] * self.size[1]]
+        self.speed_vector = [-direction[0], -direction[1]]
+        self.initial_speed = initial_speed
+        self.speed = [0, 0]
+        self.acceleration = acceleration
+        self.pos = self.start_pos.copy()
+        self.image_status = previous_image
+        self.do_slide = slide_with
+        self.background = pygame.transform.scale(screen_background, self.size)
+        if isinstance(self.image_status, pygame.Surface):
+            self.image_status = pygame.transform.scale(self.image_status, self.size)
+
+    def next_frame(self):
+
+        if abs(self.pos[0] + self.speed[0]) <= 10 and abs(self.pos[1] + self.speed[1]) <= 10:
+            return True
+        else:
+            self.surface.fill((255, 255, 255))
+            if self.background is not None:
+                self.surface.blit(self.background, (0, 0))
+            if self.image_status is not None:
+                if self.do_slide:
+                    self.surface.blit(self.image_status, (self.pos[0] - self.size[0], self.pos[1] - self.size[1]))
+                else:
+                    self.surface.blit(self.image_status, (0, 0))
+            for i in [0, 1]:
+                self.speed[i] += self.speed_vector[i] * self.acceleration
+                self.pos[i] += self.speed[i]
+            self.surface.blit(self.image, self.pos)
+            print(self.pos)
+            pygame.display.flip()
+        return False
+
+
+# from button_support
 class FeedbackButton(BasicButton):
     # 初始化反馈按钮
     def __init__(self, size, pos, text, text_size, surface, bg_color=(30, 255, 189), border_color=(255, 255, 255),
@@ -115,6 +221,7 @@ class FeedbackButton(BasicButton):
         self.font_rect.center = (pos[0] + self.size[0] // 2, pos[1] + self.size[1] // 2)
 
 
+# from button_support
 class DelayButton(BasicButton):
     # 初始化延迟响应按钮
     def __init__(self, size, pos, text, text_size, surface, bg_color=(30, 255, 189), border_color=(255, 255, 255),
@@ -225,3 +332,122 @@ class DelayButton(BasicButton):
                          border_radius=min(self.size) // 4, width=4)
 
         self.surface.blit(self.text, self.font_rect)
+
+
+# from basic_page
+class BasicPage:
+    def __init__(self, show_size, real_size, pos, screen=None, acc=1, wheel_support=False):
+        """
+
+        :param show_size:           显示的大小
+        :type show_size:            Tuple[int, int] | List[int, int]
+        :param real_size:           实际的大小
+        :type real_size:            Tuple[int, int] | List[int, int]
+        :param pos:                 在目标 Surface 的位置
+        :type pos:                  Tuple[int, int] | List[int, int]
+        :param screen:              目标 Surface 对象
+        :type screen:               pygame.Surface | pygame.surface.SurfaceType | None
+        :param acc:                 动画加速度
+        :type acc:                  float
+        :param wheel_support:       是否支持滚轮
+        :type wheel_support:        bool
+        """
+        self._size = show_size
+        self._real_size = real_size
+        self._frame = pygame.Surface(self._size)
+        self.surface = pygame.Surface(self._real_size)
+        self._pos = pos
+        self._screen = screen
+        self._sliding = False
+        self._button_trusteeship: List[BasicButton] = []
+        self._delta = 0
+        self._pos_y = 0
+        self._pre_click = False
+        self._pre_pos: List[int] = [0, 0]
+        self._acc = acc
+        self._speed = 0
+        self._last_delta = 0
+        self._ps = 0
+        self._lock = False
+        self._wheel_support = wheel_support
+
+    def _add_button_trusteeship(self, button):
+        if not isinstance(button, BasicButton):
+            raise UnexpectedParameter(error0x02.format(BasicButton.__class__.__name__))
+        self._button_trusteeship.append(button)
+
+    def _in_area(self, mouse_pos):
+        if self._pos[0] <= mouse_pos[0] <= self._size[0] + self._pos[0] and self._pos[1] <= mouse_pos[1] <= self._size[
+            1] + \
+                self._pos[1]:
+            return True
+        return False
+
+    def _reverse(self):
+        if self._pos_y > 0:
+            self._pos_y /= self._acc
+        elif self._pos_y < self._size[1] - self._real_size[1]:
+            self._pos_y = (self._pos_y + self._real_size[1] - self._size[1]) / self._acc + self._size[1] - \
+                          self._real_size[1]
+
+    def operate(self, mouse_pos, effectiveness, mouse_wheel_status=None):
+        """
+        :param mouse_pos:
+        :type mouse_pos:            List[int, int] | (int, int)
+        :param effectiveness:
+        :type effectiveness:        bool
+        :param mouse_wheel_status:
+        :type mouse_wheel_status:   [bool, bool] | None
+
+        :return:                    None
+
+        """
+        if self._in_area(mouse_pos) and self._wheel_support:
+            if mouse_wheel_status is None:
+                raise UnexpectedParameter(error0x01)
+            if mouse_wheel_status[0]:
+                self._speed = -20
+            elif mouse_wheel_status[1]:
+                self._speed = 20
+        if self._in_area(mouse_pos) or self._sliding:
+            if not self._lock:
+                if not self._pre_click and effectiveness:
+                    self._pre_pos = mouse_pos
+                    self._ps = 1
+                    self._sliding = False
+                    self._lock = False
+
+                elif self._pre_click and effectiveness:
+                    if self._pre_pos != mouse_pos:
+                        self._sliding = True
+                    self._delta = mouse_pos[1] - self._pre_pos[1]
+                    self._speed = self._delta - self._last_delta
+                    self._last_delta = self._delta
+                    self._ps += 1
+
+                elif self._pre_click and not effectiveness:
+                    self._sliding = False
+                    self._pos_y += self._delta
+                    print(self._speed)
+                    self._delta = 0
+
+                else:
+                    self._reverse()
+                    self._pos_y += self._speed
+                    self._speed /= self._acc
+        else:
+            self._reverse()
+            self._pos_y += self._speed
+            self._speed /= self._acc
+            if effectiveness:
+                self._lock = True
+            else:
+                self._lock = False
+        self._frame.fill((0, 0, 0))
+        self._frame.blit(self.surface, (0, self._pos_y + self._delta))
+        if self._screen is not None:
+            self._screen.blit(self._frame, self._pos)
+
+        self._pre_click = effectiveness
+        # print(self.pos_y, self.sliding)
+
