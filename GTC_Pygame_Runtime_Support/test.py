@@ -1,13 +1,15 @@
 import sys
 import pygame
+
 import basic_page
 
 screen = pygame.display.set_mode((500, 500))
-bp = basic_page.BasicPage(300, 300, [100, 100], screen)
+bp = basic_page.BasicPage([300, 300], [300, 1000], [100, 100], screen, 0.5)
 
 if __name__ == '__main__':
+    clock = pygame.time.Clock()
     bp.surface.fill((255, 255, 255))
-    for i in range(30):
+    for i in range(100):
         pygame.draw.line(bp.surface, [0, 0, 0], [0, 10 * i], [300, 10 * i])
 
     while True:
@@ -17,3 +19,4 @@ if __name__ == '__main__':
 
         bp.operate(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3)[0])
         pygame.display.flip()
+        clock.tick(60)

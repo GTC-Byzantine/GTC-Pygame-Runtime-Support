@@ -5,22 +5,24 @@ from basic_class import *
 
 class BasicPage:
 
-    def __init__(self, width, height, pos, screen=None):
+    def __init__(self, show_size, real_size, pos, screen=None, acc=1):
         """
 
-        :param width:           宽度
-        :type width:            int
-        :param height:          高度
-        :type height:           int
+        :param show_size:
+        :type show_size:            Tuple[int, int] | List[int, int]
+        :param real_size:
+        :type real_size:           Tuple[int, int] | List[int, int]
         :param pos:             在目标 Surface 的位置
         :type pos:              Tuple[int, int] | List[int, int]
         :param screen:          目标 Surface 对象
         :type screen:           pygame.Surface | pygame.surface.SurfaceType | None
-
+        :param acc:
+        :type acc:              float
         """
-        self.size = [width, height]
+        self.size = show_size
+        self.real_size = real_size
         self.frame = pygame.Surface(self.size)
-        self.surface = pygame.Surface(self.size)
+        self.surface = pygame.Surface(self.real_size)
         self.pos = pos
         self.screen = screen
         self.sliding = False
@@ -29,6 +31,17 @@ class BasicPage:
         self.pos_y = 0
         self.pre_click = False
         self.pre_pos: List[int] = [0, 0]
+        self.acc = acc
+        self.speed = 0
+        self.last_delta = 0
+        self.ps = 0
+        self.lock = False
+
+    def _in_area(self, mouse_pos):
+        if self.pos[0] <= mouse_pos[0] <= self.size[0] + self.pos[0] and self.pos[1] <= mouse_pos[1] <= self.size[1] + \
+                self.pos[1]:
+            return True
+        return False
 
     def operate(self, mouse_pos, effectiveness):
         """
@@ -38,26 +51,45 @@ class BasicPage:
         :type effectiveness:        bool
         :return:                    None
         """
+        if self._in_area(mouse_pos) or self.sliding:
+            if not self.lock:
+                if not self.pre_click and effectiveness:
+                    self.pre_pos = mouse_pos
+                    self.ps = 1
+                    self.sliding = False
+                    self.lock = False
 
-        if not self.pre_click and effectiveness:
-            self.pre_pos = mouse_pos
-            
-            self.sliding = False
+                elif self.pre_click and effectiveness:
+                    if self.pre_pos != mouse_pos:
+                        self.sliding = True
+                    self.delta = mouse_pos[1] - self.pre_pos[1]
+                    self.speed = self.delta - self.last_delta
+                    self.last_delta = self.delta
+                    self.ps += 1
 
-        elif self.pre_click and effectiveness:
-            if self.pre_pos != mouse_pos:
-                self.sliding = True
-            self.delta = mouse_pos[1] - self.pre_pos[1]
-
-        elif self.pre_click and not effectiveness:
-            self.sliding = False
-            self.pos_y += self.delta
-            self.delta = 0
-
+                elif self.pre_click and not effectiveness:
+                    self.sliding = False
+                    self.pos_y += self.delta
+                    self.speed = self.delta / self.ps
+                    print(self.speed)
+                    self.delta = 0
+                else:
+                    self.pos_y += self.speed
+                    if self.speed > 0:
+                        self.speed -= self.acc
+                    elif self.speed < 0:
+                        self.speed += self.acc
+                    if abs(self.speed) < 5:
+                        self.speed = 0
+        else:
+            if effectiveness:
+                self.lock = True
+            else:
+                self.lock = False
         self.frame.fill((0, 0, 0))
         self.frame.blit(self.surface, (0, self.pos_y + self.delta))
         if self.screen is not None:
             self.screen.blit(self.frame, self.pos)
 
         self.pre_click = effectiveness
-        print(self.pos_y, self.sliding)
+        # print(self.pos_y, self.sliding)
