@@ -1,3 +1,4 @@
+#####
 class BasicButton(object):
     state = False
 
@@ -8,7 +9,7 @@ class BasicButton(object):
         """
 
         :param mouse_pos:
-        :type mouse_pos:            (int, int)
+        :type mouse_pos:            (int, int) | List[int, int]
         :param effectiveness:
         :type effectiveness:        bool
         :return:
@@ -18,3 +19,5 @@ class BasicButton(object):
     def cancel(self):
         self.state = False
         self.do_cancel = True
+
+#####

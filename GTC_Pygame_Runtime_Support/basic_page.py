@@ -4,17 +4,18 @@ from basic_class import *
 from error import *
 
 
+#####
 class BasicPage:
 
     def __init__(self, show_size, real_size, pos, screen=None, acc=1, wheel_support=False):
         """
 
         :param show_size:           显示的大小
-        :type show_size:            Tuple[int, int] | List[int, int]
+        :type show_size:            Tuple[int, int] | List[int]
         :param real_size:           实际的大小
-        :type real_size:            Tuple[int, int] | List[int, int]
+        :type real_size:            Tuple[int, int] | List[int]
         :param pos:                 在目标 Surface 的位置
-        :type pos:                  Tuple[int, int] | List[int, int]
+        :type pos:                  Tuple[int, int] | List[int]
         :param screen:              目标 Surface 对象
         :type screen:               pygame.Surface | pygame.surface.SurfaceType | None
         :param acc:                 动画加速度
@@ -40,16 +41,19 @@ class BasicPage:
         self._ps = 0
         self._lock = False
         self._wheel_support = wheel_support
+        self._background = None
 
-    def _add_button_trusteeship(self, button):
+    def add_button_trusteeship(self, button):
         if not isinstance(button, BasicButton):
             raise UnexpectedParameter(error0x02.format(BasicButton.__class__.__name__))
         self._button_trusteeship.append(button)
 
+    def set_as_background(self):
+        self._background = self.surface.copy()
+
     def _in_area(self, mouse_pos):
         if self._pos[0] <= mouse_pos[0] <= self._size[0] + self._pos[0] and self._pos[1] <= mouse_pos[1] <= self._size[
-            1] + \
-                self._pos[1]:
+           1] + self._pos[1]:
             return True
         return False
 
@@ -60,18 +64,22 @@ class BasicPage:
             self._pos_y = (self._pos_y + self._real_size[1] - self._size[1]) / self._acc + self._size[1] - \
                           self._real_size[1]
 
-    def operate(self, mouse_pos, effectiveness, mouse_wheel_status=None):
+    def operate(self, mouse_pos, effectiveness, mouse_wheel_status=None, operate_buttons=False):
         """
         :param mouse_pos:
-        :type mouse_pos:            List[int, int] | (int, int)
+        :type mouse_pos:            List[int] | (int, int)
         :param effectiveness:
         :type effectiveness:        bool
         :param mouse_wheel_status:
         :type mouse_wheel_status:   [bool, bool] | None
-
+        :param operate_buttons:
+        :type operate_buttons:      False
         :return:                    None
 
         """
+        if self._background is not None:
+            self.surface.blit(self._background, (0, 0))
+            # pass
         if self._in_area(mouse_pos) and self._wheel_support:
             if mouse_wheel_status is None:
                 raise UnexpectedParameter(error0x01)
@@ -98,7 +106,6 @@ class BasicPage:
                 elif self._pre_click and not effectiveness:
                     self._sliding = False
                     self._pos_y += self._delta
-                    print(self._speed)
                     self._delta = 0
 
                 else:
@@ -113,6 +120,10 @@ class BasicPage:
                 self._lock = True
             else:
                 self._lock = False
+        if operate_buttons:
+            for item in self._button_trusteeship:
+                item.operate((mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1] + self._pos_y), effectiveness)
+
         self._frame.fill((0, 0, 0))
         self._frame.blit(self.surface, (0, self._pos_y + self._delta))
         if self._screen is not None:
@@ -120,3 +131,5 @@ class BasicPage:
 
         self._pre_click = effectiveness
         # print(self.pos_y, self.sliding)
+
+#####

@@ -2,6 +2,7 @@ import pygame
 import sys
 
 
+#####
 class Slider:
 
     def __init__(self, background: pygame.Surface, acceleration: float, surface: pygame.Surface,
@@ -46,23 +47,4 @@ class Slider:
             print(self.pos)
             pygame.display.flip()
         return False
-
-
-def main():
-    screen = pygame.display.set_mode((400, 400))
-    test1 = Slider(pygame.image.load('../Data/Image/t2.png'), 0.01, screen, direction=(1, 0),
-                   previous_image=pygame.image.load('../Data/Image/t2.png'), slide_with=True,
-                   screen_background=pygame.image.load('../Data/Image/t2.png'))
-    screen.fill((255, 255, 255))
-    clock = pygame.time.Clock()
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return
-        test1.next_frame()
-        pygame.display.update()
-        # clock.tick(30)
-
-
-if __name__ == "__main__":
-    main()
+#####

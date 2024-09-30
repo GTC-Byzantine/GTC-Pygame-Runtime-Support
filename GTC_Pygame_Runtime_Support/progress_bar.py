@@ -4,7 +4,7 @@ import pygame
 
 pygame.init()
 
-
+#####
 class ProgressBar:
     process = 0
 
@@ -28,7 +28,7 @@ class ProgressBar:
             pygame.draw.rect(self.surface, self.border, (0, 0, self.width, self.height), width=1)
         pygame.draw.rect(self.surface, self.bar_color, (0, 0, self.process, self.height))
         self.screen.blit(self.surface, self.pos)
-
+#####
 
 if __name__ == '__main__':
     screen = pygame.display.set_mode((500, 500))
