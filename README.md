@@ -12,3 +12,5 @@
 ```python
 import GTC_Pygame_Runtime_Support as PRS
 ```
+
+软件包内的每个组件有几乎相同的使用方法和属性
