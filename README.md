@@ -17,9 +17,12 @@ import GTC_Pygame_Runtime_Support as PRS
 screen = pygame.display.set_mode((100, 100))
 button = PRS.button_support.FeedbackButton([40, 40], [10, 10], '114', 10', screen)
 running = 1
+clock = pygame.time.Clock()
 while running:
-  for event in pygame.event.get():
-    if event.type == pygame.QUIT:
-      running = 0
-  button.operate(pygame.mouse.get_pos, pygame.mouse.get_pressed(3)[0])
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = 0
+    button.operate(pygame.mouse.get_pos, pygame.mouse.get_pressed(3)[0])
+    pygame.display.flip()
+    clock.tick(60)
 ```
