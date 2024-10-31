@@ -1,13 +1,13 @@
 import pygame
 from typing import List
-from basic_class import *
-from error import *
+from GTC_Pygame_Runtime_Support.basic_class import *
+from GTC_Pygame_Runtime_Support.error import *
 
 
 #####
-class BasicPage:
+class PlainPage:
 
-    def __init__(self, show_size, real_size, pos, screen=None, acc=1, wheel_support=False):
+    def __init__(self, show_size, real_size, pos, screen=None, acc=1.4, wheel_support=False, grounding=(220, 220, 220)):
         """
 
         :param show_size:           显示的大小
@@ -22,6 +22,8 @@ class BasicPage:
         :type acc:                  float
         :param wheel_support:       是否支持滚轮
         :type wheel_support:        bool
+        :param grounding:           虚空部分底色
+        :type grounding:            (int, int, int) | List[int]
         """
         self._size = show_size
         self._real_size = real_size
@@ -42,6 +44,7 @@ class BasicPage:
         self._lock = False
         self._wheel_support = wheel_support
         self._background = None
+        self._grounding = grounding
 
     def add_button_trusteeship(self, button):
         if not isinstance(button, BasicButton):
@@ -51,9 +54,17 @@ class BasicPage:
     def set_as_background(self):
         self._background = self.surface.copy()
 
+    def change_blit_pos(self, pos):
+        """
+        :param pos:         更改后的坐标
+        :type pos:          (int, int) | List[int]
+        :return:
+        """
+        self._pos = pos
+
     def _in_area(self, mouse_pos):
         if self._pos[0] <= mouse_pos[0] <= self._size[0] + self._pos[0] and self._pos[1] <= mouse_pos[1] <= self._size[
-           1] + self._pos[1]:
+            1] + self._pos[1]:
             return True
         return False
 
@@ -80,7 +91,7 @@ class BasicPage:
         if self._background is not None:
             self.surface.blit(self._background, (0, 0))
             # pass
-        if self._in_area(mouse_pos) and self._wheel_support:
+        if self._in_area(mouse_pos) and self._wheel_support and not effectiveness:
             if mouse_wheel_status is None:
                 raise UnexpectedParameter(error0x01)
             if mouse_wheel_status[0]:
@@ -112,6 +123,9 @@ class BasicPage:
                     self._reverse()
                     self._pos_y += self._speed
                     self._speed /= self._acc
+            else:
+                if not effectiveness:
+                    self._lock = False
         else:
             self._reverse()
             self._pos_y += self._speed
@@ -122,9 +136,10 @@ class BasicPage:
                 self._lock = False
         if operate_buttons:
             for item in self._button_trusteeship:
-                item.operate((mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1] + self._pos_y), effectiveness)
-
-        self._frame.fill((0, 0, 0))
+                item.operate((mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1] - self._pos_y), effectiveness)
+                if self._sliding:
+                    item.cancel()
+        self._frame.fill(self._grounding)
         self._frame.blit(self.surface, (0, self._pos_y + self._delta))
         if self._screen is not None:
             self._screen.blit(self._frame, self._pos)

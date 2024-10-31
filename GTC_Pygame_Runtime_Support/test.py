@@ -4,7 +4,7 @@ import button_support
 import basic_page
 
 screen = pygame.display.set_mode((500, 500))
-bp = basic_page.BasicPage([300, 300], [300, 1000], [100, 100], screen, 1.4, True)
+bp = basic_page.PlainPage([300, 300], [300, 1000], [100, 100], screen, 1.4, True)
 
 if __name__ == '__main__':
     clock = pygame.time.Clock()

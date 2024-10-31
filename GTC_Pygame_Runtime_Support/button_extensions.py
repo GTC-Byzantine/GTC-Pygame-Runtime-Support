@@ -1,9 +1,10 @@
 import pygame
 from typing import *
 import os
-from basic_class import *
+from GTC_Pygame_Runtime_Support.basic_class import *
 
 
+#####
 class SimpleButtonWithImage(BasicButton):
 
     def __init__(self, pos: List[int], surface: pygame.Surface, size: Tuple[int, int] = (200, 200),
@@ -31,6 +32,7 @@ class SimpleButtonWithImage(BasicButton):
         self.text_pos = [text[1][0] + pos[0], text[1][1] + pos[1]]
         self.cp = []
         self.last_clicked = False
+        self.on_click = False
         if text is not None:
             self.text_size = text[2]
             self.text_color = text[3]
@@ -64,8 +66,14 @@ class SimpleButtonWithImage(BasicButton):
             pygame.draw.rect(self.surface, self.bg_color, [self.pos[0], self.pos[1], self.size[0], self.size[1]])
             if effectiveness:
                 self.lock = True
+                if self.last_clicked:
+                    self.cancel()
             else:
                 self.lock = False
+        if not effectiveness and self.last_clicked and not self.do_cancel:
+            self.on_click = True
+        else:
+            self.on_click = False
         if not self.state:
             self.last_clicked = False
         if self.bg_image is not None:
@@ -76,3 +84,5 @@ class SimpleButtonWithImage(BasicButton):
         if self.text_ini is not None:
             self.surface.blit(self.text, self.text.get_rect(center=self.text_pos))
 
+
+#####
