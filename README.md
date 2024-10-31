@@ -9,6 +9,6 @@
 
 使用时，你可以像这样导入软件包：
 
-'''python
+```python
 import GTC_Pygame_Runtime_Support as PRS
-'''
+```
