@@ -30,3 +30,4 @@ while running:
     clock.tick(60)
 
 ```
+可以发现，几乎所有重要信息
