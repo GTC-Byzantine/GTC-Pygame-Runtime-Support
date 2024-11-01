@@ -14,15 +14,18 @@ import GTC_Pygame_Runtime_Support as PRS
 ```python
 import pygame
 import GTC_Pygame_Runtime_Support as PRS
-screen = pygame.display.set_mode((100, 100))
-button = PRS.button_support.FeedbackButton([40, 40], [10, 10], '114', 10', screen)
+screen = pygame.display.set_mode((200, 200))
+button = PRS.button_support.FeedbackButton([40, 40], [20, 20], '114', 15, screen, bg_color=[0, 145, 220],
+                                                border_color=[209, 240, 255], text_color=[255, 255, 255],
+                                                change_color=((0, 145, 220), (0, 225, 0)))
 running = 1
 clock = pygame.time.Clock()
 while running:
+    screen.fill((255, 255, 255))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = 0
-    button.operate(pygame.mouse.get_pos, pygame.mouse.get_pressed(3)[0])
+    button.operate(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3)[0])
     pygame.display.flip()
     clock.tick(60)
 ```
