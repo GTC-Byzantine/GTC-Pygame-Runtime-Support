@@ -34,7 +34,7 @@ while running:
 
 PRS 提供较完备的滚动页面解决方案，可以大幅度节省程序员们的头发：
 
-```python
+```python3
 import sys
 import pygame
 import GTC_Pygame_Runtime_Support as PRS
