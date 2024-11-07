@@ -66,3 +66,4 @@ if __name__ == '__main__':
         pygame.display.flip()
         clock.tick(60)
 ```
+该页面不仅可以使用滚轮滚动页面，也可以使用鼠标拖动页面，并且在使用`add_button_trusteeship`函数后，按钮也可以正常使用。
