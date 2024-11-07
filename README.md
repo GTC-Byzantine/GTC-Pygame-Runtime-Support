@@ -35,4 +35,34 @@ while running:
 PRS 提供较完备的滚动页面解决方案，可以大幅度节省程序员们的头发：
 
 ```python
+import sys
+import pygame
+import GTC_Pygame_Runtime_Support as PRS
+
+screen = pygame.display.set_mode((500, 500))
+bp = PRS.basic_page.PlainPage([300, 300], [300, 1000], [100, 100], screen, 1.4, True)
+
+if __name__ == '__main__':
+    clock = pygame.time.Clock()
+    bp.surface.fill((255, 255, 255))
+    for i in range(100):
+        pygame.draw.line(bp.surface, [0, 0, 0], [0, 10 * i], [300, 10 * i])
+    bp.set_as_background()
+    bp.add_button_trusteeship(PRS.button_support.FeedbackButton([280, 80], (10, 30), '114514', 62, bp.surface,
+                                                                bg_color=[0, 145, 220],
+                                                                border_color=[209, 240, 255], text_color=(255, 255, 255),
+                                                                change_color=((0, 145, 220), (0, 220, 145))))
+    while True:
+        mw = [False, False]
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 4:
+                    mw[1] = True
+                elif event.button == 5:
+                    mw[0] = True
+        bp.operate(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3)[0], mw, True)
+        pygame.display.flip()
+        clock.tick(60)
 ```
