@@ -30,4 +30,4 @@ while running:
     clock.tick(60)
 
 ```
-可以发现，几乎所有重要信息
+可以发现，几乎所有重要信息都在被定义时传入，故调用时只需要传入鼠标坐标(mouse_pos)和是否点击(effectiveness)即可。
