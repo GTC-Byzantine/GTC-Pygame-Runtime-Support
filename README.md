@@ -1,6 +1,8 @@
 # GTC Pygame Runtime Support
 集成 Pygame 应用开发支持
 
+Finding an English version? [click here](https://github.com/GTC-Software-Studio/GTC-Pygame-Runtime-Support/blob/main/README.md)
+
 此软件包可用于 Pygame 应用开发，包括但不限于游戏、窗体应用，应于版本大于 3.4.0 的 Python 环境中运行。
 
 使用时，你可以像这样导入软件包：
