@@ -20,4 +20,19 @@ class BasicButton(object):
         self.state = False
         self.do_cancel = True
 
+
+class BasicChecker(object):
+    def __init__(self, check_range, default_state = False):
+        """
+        :param check_range:             检查的范围
+        :type check_range:              List[int] | Tuple[int, int]
+        :param default_state:           默认状态
+        :type default_state:            bool | int | str
+        """
+        self.range = check_range
+        self.state = default_state
+
+    def check(self, mouse_pos, mouse_click):
+        pass
+
 #####
