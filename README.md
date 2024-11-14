@@ -19,7 +19,7 @@ import GTC_Pygame_Runtime_Support as PRS
 import pygame
 import GTC_Pygame_Runtime_Support as PRS
 screen = pygame.display.set_mode((200, 200))
-button = PRS.button_support.FeedbackButton([40, 40], [20, 20], '114', 15, screen, bg_color=[0, 145, 220],
+button = PRS.button.FeedbackButton([40, 40], [20, 20], '114', 15, screen, bg_color=[0, 145, 220],
                                            border_color=[209, 240, 255], text_color=[255, 255, 255],
                                            change_color=((0, 145, 220), (0, 225, 0)))
 running = 1
