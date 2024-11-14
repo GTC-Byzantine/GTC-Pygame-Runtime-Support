@@ -1,7 +1,7 @@
 import sys
 import pygame
 import button_support
-import basic_page
+import page
 
 screen = pygame.display.set_mode((500, 500))
 bp = basic_page.PlainPage([300, 300], [300, 1000], [100, 100], screen, 1.4, True)
