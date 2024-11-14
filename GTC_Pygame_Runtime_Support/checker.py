@@ -5,4 +5,9 @@ class OnHover(BasicChecker):
         super().__init__(check_range, default_state)
 
     def check(self, mouse_pos, mouse_click):
-        pass
+        self.state = False
+        if self.range[0] <= mouse_pos[0] <= self.range[0] + self.range[2]\
+                and self.range[1] <= mouse_pos[1] <= self.range[0] + self.range[3]:
+            self.state = True
+        return self.state
+

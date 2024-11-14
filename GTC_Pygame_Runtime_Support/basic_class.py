@@ -1,3 +1,4 @@
+from typing import  *
 #####
 class BasicButton(object):
     state = False
@@ -9,7 +10,7 @@ class BasicButton(object):
         """
 
         :param mouse_pos:
-        :type mouse_pos:            (int, int) | List[int, int]
+        :type mouse_pos:            (int, int) | List[int]
         :param effectiveness:
         :type effectiveness:        bool
         :return:
@@ -24,8 +25,8 @@ class BasicButton(object):
 class BasicChecker(object):
     def __init__(self, check_range, default_state = False):
         """
-        :param check_range:             检查的范围
-        :type check_range:              List[int] | Tuple[int, int]
+        :param check_range:             检查的范围（横纵长宽）
+        :type check_range:              List[int] | Tuple[int, int, int, int]
         :param default_state:           默认状态
         :type default_state:            bool | int | str
         """
@@ -34,5 +35,7 @@ class BasicChecker(object):
 
     def check(self, mouse_pos, mouse_click):
         pass
+    def change_range(self, check_range):
+        self.range = check_range
 
 #####
