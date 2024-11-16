@@ -9,5 +9,12 @@ class OnHover(BasicChecker):
         if self.range[0] <= mouse_pos[0] <= self.range[0] + self.range[2]\
                 and self.range[1] <= mouse_pos[1] <= self.range[0] + self.range[3]:
             self.state = True
-        return self.state
+        return self.state if not self.do_reverse else not self.do_reverse
+
+class AlwaysTrue(BasicChecker):
+    def __init__(self, check_range, default_state=False, do_reverse=False):
+        super().__init__(check_range, default_state, do_reverse)
+
+    def check(self, mouse_pos, mouse_click):
+        return False if self.do_reverse else True
 
