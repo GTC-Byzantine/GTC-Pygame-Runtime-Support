@@ -4,7 +4,8 @@ from typing import List, Tuple
 import pygame
 from GTC_Pygame_Runtime_Support.basic_class import *
 
-pygame.init()
+pygame.font.init()
+pygame.display.init()
 
 
 #####
@@ -123,7 +124,6 @@ class FeedbackButton(BasicButton):
 
     def change_pos(self, pos: Tuple[int, int]):
         self.pos = pos
-        self.font_rect.center = (pos[0] + self.size[0] // 2, pos[1] + self.size[1] // 2)
 
 
 class DelayButton(BasicButton):
@@ -157,7 +157,7 @@ class DelayButton(BasicButton):
         super().__init__()
         self.size = size
         self.pos = pos
-        self.frame = pygame.Surface(size)
+        self.frame = pygame.Surface(size).convert_alpha()
         if os.path.exists(font_type):
             self.text = pygame.font.Font(font_type, text_size).render(text, True, text_color)
         else:
@@ -187,6 +187,7 @@ class DelayButton(BasicButton):
         return False
 
     def operate(self, mouse_pos, effectiveness):
+        self.frame.fill((0, 0, 0, 0))
         if self.in_area(mouse_pos):
             self.state_2 = True
             if effectiveness:
@@ -230,39 +231,16 @@ class DelayButton(BasicButton):
         pygame.draw.rect(self.surface, self.temp_color, (self.pos[0] - self.iter, self.pos[1] - self.iter,
                                                          self.size[0] + 2 * self.iter, self.size[1] + 2 * self.iter),
                          border_radius=min(self.size) // 4, width=6)
-        pygame.draw.rect(self.surface, self.color[0], [self.pos[0], self.pos[1], self.size[0], self.size[1]],
+        pygame.draw.rect(self.frame, self.color[0], [self.pos[0], self.pos[1], self.size[0], self.size[1]],
                          border_radius=min(self.size) // 4)
-        pygame.draw.rect(self.surface, self.color[1], [self.pos[0], self.pos[1], self.size[0], self.size[1]],
+        pygame.draw.rect(self.frame, self.color[1], [self.pos[0], self.pos[1], self.size[0], self.size[1]],
                          border_radius=min(self.size) // 4, width=4)
 
-        self.surface.blit(self.text, self.font_rect)
+        self.frame.blit(self.text, self.font_rect)
+        self.surface.blit(self.frame, self.pos)
 
 
-#####
-
-# if __name__ == '__main__':
-#     s = pygame.display.set_mode((500, 500))
-#     b = FeedbackButton([280, 80], (100, 100), '课堂小记', 62, s,
-#                        bg_color=[0, 145, 220],
-#                        border_color=[209, 240, 255], text_color=(255, 255, 255),
-#                        change_color=((0, 145, 220), (0, 220, 145)))
-#     clock = pygame.time.Clock()
-#     while True:
-#         for event in pygame.event.get():
-#             if event.type == pygame.QUIT:
-#                 sys.exit(998244353)
-#         s.fill((0, 0, 0))
-#         b.operate(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3)[0])
-#         if b.on_click:
-#             print(1)
-#         pygame.display.flip()
-#         clock.tick(60)
-#
-
-
-#####
 class SimpleButtonWithImage(BasicButton):
-
     def __init__(self, pos: List[int], surface: pygame.Surface, size: Tuple[int, int] = (200, 200),
                  bg_color: Tuple[int, int, int] or Tuple[int, int, int, int] = (255, 255, 255),
                  hovering_color: Tuple[int, int, int] or Tuple[int, int, int, int] = (249, 249, 249),
@@ -339,5 +317,3 @@ class SimpleButtonWithImage(BasicButton):
 
         if self.text_ini is not None:
             self.surface.blit(self.text, self.text.get_rect(center=self.text_pos))
-
-#####

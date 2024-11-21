@@ -2,7 +2,8 @@ import sys
 from typing import Tuple, List
 import pygame
 
-pygame.init()
+pygame.font.init()
+pygame.display.init()
 
 #####
 class ProgressBar:

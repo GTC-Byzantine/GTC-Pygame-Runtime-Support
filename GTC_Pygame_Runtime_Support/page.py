@@ -4,7 +4,6 @@ from GTC_Pygame_Runtime_Support.basic_class import *
 from GTC_Pygame_Runtime_Support.error import *
 
 
-#####
 class PlainPage:
 
     def __init__(self, show_size, real_size, pos, screen=None, acc=1.4, wheel_support=False, grounding=(220, 220, 220)):
@@ -113,6 +112,10 @@ class PlainPage:
                     self._speed = self._delta - self._last_delta
                     self._last_delta = self._delta
                     self._ps += 1
+                    if self._pos_y + self._delta > 0:
+                        self._delta -= (self._pos_y + self._delta) // self._acc
+                    elif self._pos_y + self._delta < self._size[1] - self._real_size[1]:
+                        self._delta -= (self._pos_y + self._delta - self._size[1] + self._real_size[1]) // self._acc
 
                 elif self._pre_click and not effectiveness:
                     self._sliding = False
