@@ -60,9 +60,17 @@ class CommonSurface:
     def operate(self):
         self.screen.blit(self.surface, self.pos)
 
+    def add_pos(self, pos):
+        self.pos[0] += pos[0]
+        self.pos[1] += pos[1]
+        for group in self.checkers:
+            for checker in self.checkers[group]['checkers']:
+                checker:BasicChecker
+                checker.add_pos(pos)
+
 if __name__ == '__main__':
     s = CommonSurface([30, 30], [10, 10], None)
-    s.add_checker_group('1', print, ['114514s'], 'and')
+    s.add_checker_group('1', print, ['114514s', '1919810'], 'and')
     s.add_checker('1', AlwaysTrue([10, 10, 30, 30], False))
     s.add_checker('1', AlwaysTrue([10, 10, 30, 30], False))
     s.run_check([0, 0], [True])

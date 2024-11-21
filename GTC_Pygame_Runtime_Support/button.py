@@ -40,7 +40,7 @@ class FeedbackButton(BasicButton):
         super().__init__()
         self.size = size
         self.pos = pos
-
+        self.frame = pygame.Surface(size).convert_alpha()
         if os.path.exists(font_type):
             self.text = pygame.font.Font(font_type, text_size).render(text, True, text_color)
         else:
@@ -48,7 +48,7 @@ class FeedbackButton(BasicButton):
         self.color = [bg_color, border_color, change_color]
         self.font_rect = self.text.get_rect()
 
-        self.font_rect.center = (pos[0] + size[0] // 2, pos[1] + size[1] // 2)
+        self.font_rect.center = (size[0] // 2, size[1] // 2)
         self.iter = 0
         self.color_iter = 0
         self.speed = speed
@@ -70,6 +70,7 @@ class FeedbackButton(BasicButton):
         return False
 
     def operate(self, mouse_pos, effectiveness):
+        self.frame.fill((0, 0, 0, 0))
         if self.in_area(mouse_pos):
             self.iter += self.speed
             self.iter = min(self.iter, 12)
@@ -112,12 +113,13 @@ class FeedbackButton(BasicButton):
         pygame.draw.rect(self.surface, self.temp_color, (self.pos[0] - self.iter, self.pos[1] - self.iter,
                                                          self.size[0] + 2 * self.iter, self.size[1] + 2 * self.iter),
                          border_radius=min(self.size) // 4, width=6)
-        pygame.draw.rect(self.surface, self.color[0], [self.pos[0], self.pos[1], self.size[0], self.size[1]],
+        pygame.draw.rect(self.frame, self.color[0], [0, 0, self.size[0], self.size[1]],
                          border_radius=min(self.size) // 4)
-        pygame.draw.rect(self.surface, self.color[1], [self.pos[0], self.pos[1], self.size[0], self.size[1]],
+        pygame.draw.rect(self.frame, self.color[1], [0, 0, self.size[0], self.size[1]],
                          border_radius=min(self.size) // 4, width=4)
 
-        self.surface.blit(self.text, self.font_rect)
+        self.frame.blit(self.text, self.font_rect)
+        self.surface.blit(self.frame, self.pos)
 
     def change_pos(self, pos: Tuple[int, int]):
         self.pos = pos
@@ -140,13 +142,13 @@ class DelayButton(BasicButton):
         :param surface:         目标 Surface
         :type surface:          pygame.surface.SurfaceType | pygame.surface.Surface
         :param bg_color:        按钮背景颜色
-        :type bg_color:         (int, int, int) | List[int, int, int]
+        :type bg_color:         (int, int, int) | List[int]
         :param border_color:    按钮边框颜色
-        :type border_color:     (int, int, int) | List[int, int, int]
+        :type border_color:     (int, int, int) | List[int]
         :param change_color:    按钮点击时的颜色变化
         :type change_color:     ((int, int, int), (int, int, int))
         :param text_color:      文字颜色
-        :type text_color:       (int, int, int) | List[int, int, int]
+        :type text_color:       (int, int, int) | List[int]
         :param speed:           变化速度
         :type speed:            int
         :param font_type:       字体样式（名称或路径）
@@ -155,7 +157,7 @@ class DelayButton(BasicButton):
         super().__init__()
         self.size = size
         self.pos = pos
-
+        self.frame = pygame.Surface(size)
         if os.path.exists(font_type):
             self.text = pygame.font.Font(font_type, text_size).render(text, True, text_color)
         else:

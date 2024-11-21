@@ -30,8 +30,8 @@ class BasicChecker(object):
         :type default_state:            bool | int | str
         """
         self.range = check_range
-        self.state = default_state
-        self.do_reverse = do_reverse
+        self._state = default_state
+        self._do_reverse = do_reverse
 
     def check(self, mouse_pos, mouse_click):
         """
@@ -46,3 +46,6 @@ class BasicChecker(object):
     def change_range(self, check_range):
         self.range = check_range
 
+    def add_pos(self, pos):
+        self.range[0] = pos[0]
+        self.range[1] = pos[1]
