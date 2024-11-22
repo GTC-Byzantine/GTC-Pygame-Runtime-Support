@@ -1,5 +1,6 @@
 from typing import List
 
+
 class BasicButton(object):
     state = False
 
@@ -22,7 +23,7 @@ class BasicButton(object):
 
 
 class BasicChecker(object):
-    def __init__(self, check_range, default_state = False, do_reverse=False):
+    def __init__(self, check_range, default_state=False, do_reverse=False):
         """
         :param check_range:             检查的范围（横纵长宽）
         :type check_range:              List[int] | Tuple[int, int, int, int]
@@ -49,3 +50,7 @@ class BasicChecker(object):
     def add_pos(self, pos):
         self.range[0] = pos[0]
         self.range[1] = pos[1]
+
+
+class BasicSurface:
+    pass

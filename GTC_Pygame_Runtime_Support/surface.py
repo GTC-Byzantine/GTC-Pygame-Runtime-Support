@@ -1,8 +1,8 @@
 import pygame
-from GTC_Pygame_Runtime_Support.basic_class import BasicChecker
+from GTC_Pygame_Runtime_Support.basic_class import BasicChecker, BasicSurface
 from GTC_Pygame_Runtime_Support.checker import AlwaysTrue
 
-class CommonSurface:
+class CommonSurface(BasicSurface):
     def __init__(self, size, pos, screen):
         self.size = size
         self.pos = pos

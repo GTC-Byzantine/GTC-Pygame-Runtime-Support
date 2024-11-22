@@ -32,6 +32,7 @@ class PlainPage:
         self._screen = screen
         self._sliding = False
         self._button_trusteeship: List[BasicButton] = []
+        self._surface_trusteeship: List[BasicSurface] = []
         self._delta = 0
         self._pos_y = 0
         self._pre_click = False
@@ -74,7 +75,7 @@ class PlainPage:
             self._pos_y = (self._pos_y + self._real_size[1] - self._size[1]) / self._acc + self._size[1] - \
                           self._real_size[1]
 
-    def operate(self, mouse_pos, effectiveness, mouse_wheel_status=None, operate_buttons=False):
+    def operate(self, mouse_pos, effectiveness, mouse_wheel_status=None, operate_addons=False):
         """
         :param mouse_pos:
         :type mouse_pos:            List[int] | (int, int)
@@ -82,8 +83,8 @@ class PlainPage:
         :type effectiveness:        bool
         :param mouse_wheel_status:
         :type mouse_wheel_status:   [bool, bool] | None
-        :param operate_buttons:
-        :type operate_buttons:      False
+        :param operate_addons:
+        :type operate_addons:      False
         :return:                    None
 
         """
@@ -137,7 +138,7 @@ class PlainPage:
                 self._lock = True
             else:
                 self._lock = False
-        if operate_buttons:
+        if operate_addons:
             for item in self._button_trusteeship:
                 item.operate((mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1] - self._pos_y), effectiveness)
                 if self._sliding:
