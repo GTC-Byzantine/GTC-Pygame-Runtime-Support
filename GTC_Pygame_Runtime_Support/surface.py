@@ -4,11 +4,7 @@ from GTC_Pygame_Runtime_Support.checker import AlwaysTrue
 
 class CommonSurface(BasicSurface):
     def __init__(self, size, pos, screen):
-        self.size = size
-        self.pos = pos
-        self.surface = pygame.Surface(size)
-        self.screen = screen
-        self.checkers = {}
+        super().__init__(size, pos, screen)
 
     def add_checker_group(self, group_name, motion, args, checker_type='and'):
         """

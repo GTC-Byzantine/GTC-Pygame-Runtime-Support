@@ -1,5 +1,8 @@
 from typing import List
 
+import pygame
+from pygame import SurfaceType
+
 
 class BasicButton(object):
     state = False
@@ -53,4 +56,9 @@ class BasicChecker(object):
 
 
 class BasicSurface:
-    pass
+    def __init__(self, size, pos, screen):
+        self.size = size
+        self.pos = pos
+        self.surface: SurfaceType = pygame.Surface(size).convert_alpha()
+        self.screen: SurfaceType = screen
+        self.checkers = {}

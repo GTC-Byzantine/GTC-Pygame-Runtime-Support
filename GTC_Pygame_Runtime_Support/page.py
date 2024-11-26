@@ -1,5 +1,7 @@
-import pygame
 from typing import List
+
+import pygame
+
 from GTC_Pygame_Runtime_Support.basic_class import *
 from GTC_Pygame_Runtime_Support.error import *
 
@@ -45,11 +47,17 @@ class PlainPage:
         self._wheel_support = wheel_support
         self._background = None
         self._grounding = grounding
+        self._last_pos_y = -1145141919810
 
-    def add_button_trusteeship(self, button):
+    def add_button_trusteeship(self, button: BasicButton):
         if not isinstance(button, BasicButton):
             raise UnexpectedParameter(error0x02.format(BasicButton.__class__.__name__))
         self._button_trusteeship.append(button)
+
+    def add_surface_trusteeship(self, surface: BasicSurface):
+        if not isinstance(surface, BasicSurface):
+            raise UnexpectedParameter(error0x02.format(BasicSurface.__class__.__name__))
+        self._surface_trusteeship.append(surface)
 
     def set_as_background(self):
         self._background = self.surface.copy()
@@ -75,7 +83,7 @@ class PlainPage:
             self._pos_y = (self._pos_y + self._real_size[1] - self._size[1]) / self._acc + self._size[1] - \
                           self._real_size[1]
 
-    def operate(self, mouse_pos, effectiveness, mouse_wheel_status=None, operate_addons=False):
+    def operate(self, mouse_pos, effectiveness, mouse_wheel_status=None, operate_addons=False, mouse_press=None):
         """
         :param mouse_pos:
         :type mouse_pos:            List[int] | (int, int)
@@ -88,6 +96,8 @@ class PlainPage:
         :return:                    None
 
         """
+        if self._last_pos_y == -1145141919810:
+            self._last_pos_y = self._pos_y
         if self._background is not None:
             self.surface.blit(self._background, (0, 0))
             # pass
@@ -140,9 +150,22 @@ class PlainPage:
                 self._lock = False
         if operate_addons:
             for item in self._button_trusteeship:
+                item: BasicButton
                 item.operate((mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1] - self._pos_y), effectiveness)
                 if self._sliding:
                     item.cancel()
+            virtual_mouse_press = [effectiveness, False, False, False, False]
+            if mouse_press is not None:
+                virtual_mouse_press = mouse_press
+            for sur in self._surface_trusteeship:
+                sur: BasicSurface
+                for group in sur.checkers:
+                    for checker in sur.checkers[group]['checkers']:
+                        checker: BasicChecker
+                        checker.add_pos([0, self._pos_y - self._last_pos_y])
+                        checker.check([mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1]], virtual_mouse_press)
+
+        self._last_pos_y = self._pos_y
         self._frame.fill(self._grounding)
         self._frame.blit(self.surface, (0, self._pos_y + self._delta))
         if self._screen is not None:
