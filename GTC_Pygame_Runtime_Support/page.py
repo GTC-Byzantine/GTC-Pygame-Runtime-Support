@@ -85,6 +85,8 @@ class PlainPage:
 
     def operate(self, mouse_pos, effectiveness, mouse_wheel_status=None, operate_addons=False, mouse_press=None):
         """
+        :param mouse_press:
+        :type mouse_press:          List[bool] | (bool, bool, bool, bool, bool)
         :param mouse_pos:
         :type mouse_pos:            List[int] | (int, int)
         :param effectiveness:
@@ -159,13 +161,10 @@ class PlainPage:
                 virtual_mouse_press = mouse_press
             for sur in self._surface_trusteeship:
                 sur: BasicSurface
-                for group in sur.checkers:
-                    for checker in sur.checkers[group]['checkers']:
-                        checker: BasicChecker
-                        checker.add_pos([0, self._pos_y - self._last_pos_y])
-                        checker.check([mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1]], virtual_mouse_press)
-
+                sur.add_pos([0, self._pos_y - self._last_pos_y])
+                sur.run_check(mouse_pos, virtual_mouse_press)
         self._last_pos_y = self._pos_y
+
         self._frame.fill(self._grounding)
         self._frame.blit(self.surface, (0, self._pos_y + self._delta))
         if self._screen is not None:
