@@ -20,13 +20,15 @@ if __name__ == '__main__':
                                               border_color=[209, 240, 255], text_color=(255, 255, 255),
                                               change_color=((0, 145, 220), (0, 220, 145))))
 
-    s = surface.CommonSurface((100, 100), (0, 0), screen)
+    s = surface.CommonSurface((100, 100), (150, 150), bp.surface)
+    bp.add_surface_trusteeship(s)
     bt = button.FeedbackButton((50, 50), (25, 25), '6', 25, s.surface)
+    s.add_button_trusteeship(bt)
     def react():
         s.surface.fill((0, 255, 71), (0, 0, 100, 100))
-        bt.operate(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3)[0])
+        s.do_element_show[0] = True
     s.add_checker_group('1', react, [], 'and')
-    s.add_checker('1', checker.OnHover([0, 0, 100, 100], False))
+    s.add_checker('1', checker.OnHover([0, 0, 100, 100], False), True)
     mw = [False, False]
     while True:
         mw = [False, False]
@@ -39,9 +41,9 @@ if __name__ == '__main__':
                 elif event.button == 5:
                     mw[0] = True
         s.surface.fill((255, 255, 255))
-        s.run_check(pygame.mouse.get_pos(), pygame.mouse.get_pressed(5))
-        s.operate()
         bp.operate(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3)[0], mw, True)
         # screen.blit(bp._background, (0, 0))
+        if bt.on_click:
+            print('clicked')
         pygame.display.flip()
         clock.tick(60)
