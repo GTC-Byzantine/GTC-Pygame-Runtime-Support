@@ -21,6 +21,14 @@ if __name__ == '__main__':
                                               change_color=((0, 145, 220), (0, 220, 145))))
 
     s = surface.CommonSurface((100, 100), (150, 150), bp.surface)
+    inner_p = page.PlainPage([100, 100], [100, 300], [50, 200], bp.surface, wheel_support=True)
+    inner_p.surface.fill((255, 255, 255))
+    for i in range(100):
+        pygame.draw.line(inner_p.surface, [0, 0, 255], [0, 3 * i], [300, 3 * i])
+    inner_p.set_as_background()
+    inner_bt = button.FeedbackButton((50, 50), (25, 25), '9', 25, inner_p.surface)
+    inner_p.add_button_trusteeship(inner_bt)
+    bp.add_page_trusteeship(inner_p)
     bp.add_surface_trusteeship(s)
     bt = button.FeedbackButton((50, 50), (25, 25), '6', 25, s.surface)
     s.add_button_trusteeship(bt)
@@ -43,7 +51,7 @@ if __name__ == '__main__':
         s.surface.fill((255, 255, 255))
         bp.operate(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3)[0], mw, True)
         # screen.blit(bp._background, (0, 0))
-        if bt.on_click:
+        if bt.on_click or inner_bt.on_click:
             print('clicked')
         pygame.display.flip()
         clock.tick(60)

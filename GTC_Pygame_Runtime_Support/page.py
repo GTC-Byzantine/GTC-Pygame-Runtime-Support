@@ -6,11 +6,10 @@ from GTC_Pygame_Runtime_Support.basic_class import *
 from GTC_Pygame_Runtime_Support.error import *
 
 
-class PlainPage:
+class PlainPage(BasicPage):
 
     def __init__(self, show_size, real_size, pos, screen=None, acc=1.4, wheel_support=False, grounding=(220, 220, 220)):
         """
-
         :param show_size:           显示的大小
         :type show_size:            Tuple[int, int] | List[int]
         :param real_size:           实际的大小
@@ -26,6 +25,7 @@ class PlainPage:
         :param grounding:           虚空部分底色
         :type grounding:            (int, int, int) | List[int]
         """
+        super().__init__()
         self._size = show_size
         self._real_size = real_size
         self._frame = pygame.Surface(self._size)
@@ -35,6 +35,7 @@ class PlainPage:
         self._sliding = False
         self._button_trusteeship: List[BasicButton] = []
         self._surface_trusteeship: List[BasicSurface] = []
+        self._page_trusteeship: List[BasicPage] = []
         self._delta = 0
         self._pos_y = 0
         self._pre_click = False
@@ -48,16 +49,6 @@ class PlainPage:
         self._background = None
         self._grounding = grounding
 
-    def add_button_trusteeship(self, button: BasicButton):
-        if not isinstance(button, BasicButton):
-            raise UnexpectedParameter(error0x02.format(BasicButton.__class__.__name__))
-        self._button_trusteeship.append(button)
-
-    def add_surface_trusteeship(self, surface: BasicSurface):
-        if not isinstance(surface, BasicSurface):
-            raise UnexpectedParameter(error0x02.format(BasicSurface.__class__.__name__))
-        self._surface_trusteeship.append(surface)
-
     def set_as_background(self):
         self._background = self.surface.copy()
 
@@ -69,10 +60,16 @@ class PlainPage:
         """
         self._pos = pos
 
-    def _in_area(self, mouse_pos):
+    def _conflict_check(self, mouse_pos) -> bool:
+        for page in self._page_trusteeship:
+            if page.in_area(mouse_pos):
+                return True
+        return False
+
+    def in_area(self, mouse_pos):
         if self._pos[0] <= mouse_pos[0] <= self._size[0] + self._pos[0] and self._pos[1] <= mouse_pos[1] <= self._size[
             1] + self._pos[1]:
-            return True
+            return not self._conflict_check([mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1] - self._pos_y -self._delta])
         return False
 
     def _reverse(self):
@@ -95,19 +92,17 @@ class PlainPage:
         :param operate_addons:
         :type operate_addons:      False
         :return:                    None
-
         """
         if self._background is not None:
             self.surface.blit(self._background, (0, 0))
-            # pass
-        if self._in_area(mouse_pos) and self._wheel_support and not effectiveness:
+        if self.in_area(mouse_pos) and self._wheel_support and not effectiveness:
             if mouse_wheel_status is None:
                 raise UnexpectedParameter(error0x01)
             if mouse_wheel_status[0]:
                 self._speed = -20
             elif mouse_wheel_status[1]:
                 self._speed = 20
-        if self._in_area(mouse_pos) or self._sliding:
+        if self.in_area(mouse_pos) or self._sliding:
             if not self._lock:
                 if not self._pre_click and effectiveness:
                     self._pre_pos = mouse_pos
@@ -148,20 +143,21 @@ class PlainPage:
             else:
                 self._lock = False
         if operate_addons:
-            for item in self._button_trusteeship:
-                item: BasicButton
-                item.operate((mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1] - self._pos_y - self._delta), effectiveness)
-                if self._sliding:
-                    item.cancel()
             virtual_mouse_press = [effectiveness, False, False, False, False]
             if mouse_press is not None:
                 virtual_mouse_press = mouse_press
             virtual_mouse_pos = [mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1] - self._pos_y -self._delta]
-            # print(virtual_mouse_pos)
+            for item in self._button_trusteeship:
+                item.operate(virtual_mouse_pos, effectiveness)
+                if self._sliding:
+                    item.cancel()
+
             for sur in self._surface_trusteeship:
-                sur: BasicSurface
                 sur.run_check(virtual_mouse_pos, virtual_mouse_press)
                 sur.operate(virtual_mouse_pos, virtual_mouse_press[0], self._sliding)
+
+            for page in self._page_trusteeship:
+                page.operate(virtual_mouse_pos, effectiveness, mouse_wheel_status, operate_addons, mouse_press)
 
         self._frame.fill(self._grounding)
         self._frame.blit(self.surface, (0, self._pos_y + self._delta))
@@ -169,6 +165,3 @@ class PlainPage:
             self._screen.blit(self._frame, self._pos)
 
         self._pre_click = effectiveness
-        # print(self.pos_y, self.sliding)
-
-#####

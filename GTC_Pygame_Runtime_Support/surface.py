@@ -10,19 +10,19 @@ class CommonSurface(BasicSurface):
     def run_check(self, mouse_pos, mouse_click):
         for i in range(len(self.do_element_show)):
             self.do_element_show[i] = False
-        for groups in self.checkers:
+        for groups in self._checkers:
             check_type = 0
             state = False
-            if self.checkers[groups]['type'] == 'and':
+            if self._checkers[groups]['type'] == 'and':
                 check_type = 1
                 state = True
-            elif self.checkers[groups]['type'] == 'or':
+            elif self._checkers[groups]['type'] == 'or':
                 check_type = 2
                 state = False
-            for checker in self.checkers[groups]['checkers']:
+            for checker in self._checkers[groups]['checkers']:
                 checker: (BasicChecker, bool)
                 if checker[1]:
-                    check_consequence = checker[0].check((mouse_pos[0] - self.pos[0], mouse_pos[1] - self.pos[1]), mouse_click)
+                    check_consequence = checker[0].check((mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1]), mouse_click)
                 else:
                     check_consequence = checker[0].check(mouse_pos, mouse_click)
                 if check_type == 1:
@@ -30,7 +30,7 @@ class CommonSurface(BasicSurface):
                 elif check_type == 2:
                     state = state or check_consequence
             if state:
-                self.checkers[groups]["motion"](*self.checkers[groups]['args'])
+                self._checkers[groups]["motion"](*self._checkers[groups]['args'])
 
 
 if __name__ == '__main__':
