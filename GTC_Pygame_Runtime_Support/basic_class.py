@@ -66,6 +66,10 @@ class BasicSurface:
         self._checkers = {}
         self._button_trusteeship: List[BasicButton] = []
         self.do_element_show = []
+        self._background = None
+
+    def set_as_background(self):
+        self._background = self.surface.copy()
 
     def add_button_trusteeship(self, button: BasicButton):
         if not isinstance(button, BasicButton):

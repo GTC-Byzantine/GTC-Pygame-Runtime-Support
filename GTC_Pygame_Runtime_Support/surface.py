@@ -8,6 +8,8 @@ class CommonSurface(BasicSurface):
         super().__init__(size, pos, screen)
 
     def run_check(self, mouse_pos, mouse_click):
+        if self._background is not None:
+            self.surface.blit(self._background, (0, 0))
         for i in range(len(self.do_element_show)):
             self.do_element_show[i] = False
         for groups in self._checkers:
