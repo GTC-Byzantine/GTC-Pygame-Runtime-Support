@@ -11,6 +11,7 @@ class BasicButton(object):
 
     def __init__(self):
         self.do_cancel = False
+        self.cp = []
 
     def operate(self, mouse_pos, effectiveness):
         """
@@ -38,6 +39,7 @@ class BasicChecker(object):
         self.range = check_range
         self._state = default_state
         self._do_reverse = do_reverse
+        self.cp = []
 
     def check(self, mouse_pos, mouse_click):
         """
@@ -67,13 +69,14 @@ class BasicSurface:
         self._button_trusteeship: List[BasicButton] = []
         self.do_element_show = []
         self._background = None
+        self.cp = []
 
     def set_as_background(self):
         self._background = self.surface.copy()
 
     def add_button_trusteeship(self, button: BasicButton):
         if not isinstance(button, BasicButton):
-            raise UnexpectedParameter(error0x02.format(BasicButton.__class__.__name__))
+            raise UnexpectedParameter(error0x02.format(BasicButton.__name__))
         self._button_trusteeship.append(button)
         self.do_element_show.append(False)
 
@@ -85,6 +88,10 @@ class BasicSurface:
                     button.cancel()
 
     def operate(self, mouse_pos, effectiveness, do_cancel=False):
+        if self._background is not None:
+            self.surface.blit(self._background, (0, 0))
+        else:
+            self.surface.fill((0, 0, 0, 0))
         self.operate_button([mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1]], effectiveness, do_cancel)
         self._screen.blit(self.surface, self._pos)
 
@@ -138,6 +145,7 @@ class BasicPage(object):
         self._button_trusteeship: List[BasicButton] = []
         self._surface_trusteeship: List[BasicSurface] = []
         self._page_trusteeship: List[BasicPage] = []
+        self.cp = []
 
     def change_blit_pos(self, pos):
         """
@@ -155,12 +163,12 @@ class BasicPage(object):
 
     def add_button_trusteeship(self, button: BasicButton):
         if not isinstance(button, BasicButton):
-            raise UnexpectedParameter(error0x02.format(BasicButton.__class__.__name__))
+            raise UnexpectedParameter(error0x02.format(BasicButton.__name__))
         self._button_trusteeship.append(button)
 
     def add_surface_trusteeship(self, surface: BasicSurface):
         if not isinstance(surface, BasicSurface):
-            raise UnexpectedParameter(error0x02.format(BasicSurface.__class__.__name__))
+            raise UnexpectedParameter(error0x02.format(BasicSurface.__name__))
         self._surface_trusteeship.append(surface)
 
     def add_page_trusteeship(self, page):
@@ -169,7 +177,7 @@ class BasicPage(object):
         :return:
         """
         if not isinstance(page, BasicPage):
-            raise UnexpectedParameter(error0x02.format(BasicPage.__class__.__name__))
+            raise UnexpectedParameter(error0x02.format(BasicPage.__name__))
         self._page_trusteeship.append(page)
 
     def operate(self, mouse_pos, effectiveness, mouse_wheel_status=None, operate_addons=False, mouse_press=None):

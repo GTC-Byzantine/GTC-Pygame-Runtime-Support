@@ -69,7 +69,8 @@ class PlainPage(BasicPage):
     def in_area(self, mouse_pos):
         if self._pos[0] <= mouse_pos[0] <= self._size[0] + self._pos[0] and self._pos[1] <= mouse_pos[1] <= self._size[
             1] + self._pos[1]:
-            return not self._conflict_check([mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1] - self._pos_y -self._delta])
+            return not self._conflict_check(
+                [mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1] - self._pos_y - self._delta])
         return False
 
     def _reverse(self):
@@ -146,7 +147,7 @@ class PlainPage(BasicPage):
             virtual_mouse_press = [effectiveness, False, False, False, False]
             if mouse_press is not None:
                 virtual_mouse_press = mouse_press
-            virtual_mouse_pos = [mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1] - self._pos_y -self._delta]
+            virtual_mouse_pos = [mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1] - self._pos_y - self._delta]
             for item in self._button_trusteeship:
                 item.operate(virtual_mouse_pos, effectiveness)
                 if self._sliding:
