@@ -5,13 +5,26 @@ import pygame
 pygame.font.init()
 pygame.display.init()
 
-#####
-class ProgressBar:
-    process = 0
 
-    def __init__(self, width: int, height: int, target: pygame.Surface, pos: List[int],
-                 color: Tuple[Tuple[int, int, int], Tuple[int, int, int]] = ([0, 0, 0], [0, 255, 0]), sep: int = 5,
-                 border=None):
+class ProgressBar:
+    progress = 0
+    def __init__(self, width, height, target: pygame.Surface, pos, color = ((0, 0, 0), (0, 255, 0)), sep = 5, border=None):
+        """
+        :param width:                       进度条宽度
+        :type width:                        int
+        :param height:                      进度条高度
+        :type height:                       int
+        :param target:                      要在哪个 Surface 上呈现
+        :type target:                       pygame.SurfaceType
+        :param pos:                         在目标 Surface 的位置
+        :type pos:                          List[int] | Tuple[int, int]
+        :param color:                       进度条背景色及前景色
+        :type color:                        Tuple[Tuple[int, int, int], Tuple[int, int, int]] | Tuple[List[int], List[int]]
+        :param sep:                         每次操作前进的步长
+        :type sep:                          int
+        :param border:                      边框颜色（可以为空）
+        :type border:                       None
+        """
         self.surface = pygame.Surface((width, height))
         self.background_color = color[0]
         self.bar_color = color[1]
@@ -23,13 +36,13 @@ class ProgressBar:
         self.border = border
 
     def next(self):
-        self.process += self.sep
+        self.progress += self.sep
         self.surface.fill(self.background_color)
         if self.border is not None:
             pygame.draw.rect(self.surface, self.border, (0, 0, self.width, self.height), width=1)
-        pygame.draw.rect(self.surface, self.bar_color, (0, 0, self.process, self.height))
+        pygame.draw.rect(self.surface, self.bar_color, (0, 0, self.progress, self.height))
         self.screen.blit(self.surface, self.pos)
-#####
+
 
 if __name__ == '__main__':
     screen = pygame.display.set_mode((500, 500))

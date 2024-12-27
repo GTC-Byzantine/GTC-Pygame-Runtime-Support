@@ -80,6 +80,9 @@ class BasicSurface:
         self._button_trusteeship.append(button)
         self.do_element_show.append(False)
 
+    def show_button_trusteeship(self):
+        return self._button_trusteeship
+
     def operate_button(self, mouse_pos, effectiveness, do_cancel):
         for button in self._button_trusteeship:
             if self.do_element_show[self._button_trusteeship.index(button)]:
@@ -166,10 +169,16 @@ class BasicPage(object):
             raise UnexpectedParameter(error0x02.format(BasicButton.__name__))
         self._button_trusteeship.append(button)
 
+    def show_button_trusteeship(self):
+        return self._button_trusteeship
+
     def add_surface_trusteeship(self, surface: BasicSurface):
         if not isinstance(surface, BasicSurface):
             raise UnexpectedParameter(error0x02.format(BasicSurface.__name__))
         self._surface_trusteeship.append(surface)
+
+    def show_surface_trusteeship(self):
+        return self._surface_trusteeship
 
     def add_page_trusteeship(self, page):
         """
@@ -179,6 +188,9 @@ class BasicPage(object):
         if not isinstance(page, BasicPage):
             raise UnexpectedParameter(error0x02.format(BasicPage.__name__))
         self._page_trusteeship.append(page)
+
+    def show_page_trusteeship(self):
+        return self._page_trusteeship
 
     def operate(self, mouse_pos, effectiveness, mouse_wheel_status=None, operate_addons=False, mouse_press=None):
         pass
