@@ -194,3 +194,26 @@ class BasicPage(object):
 
     def operate(self, mouse_pos, effectiveness, mouse_wheel_status=None, operate_addons=False, mouse_press=None):
         pass
+
+
+class BasicPopup:
+    def __init__(self, size, pos, screen):
+        """
+        :param size:                    弹出框大小
+        :type size:                     List[int] | Tuple[int, int]
+        :param pos:                     弹出框位置
+        :type pos:                      List[int] | Tuple[int, int]
+        :param screen:                  要显示在哪个 Surface 上
+        :type screen:                   pygame.SurfaceType
+        """
+        self.clock = pygame.time.Clock()
+        self.size = size
+        self.pos = pos
+        self.screen = screen
+        self.surface = pygame.Surface(self.size)
+
+    def show(self):
+        pass
+
+    def loop(self, function, args):
+        pass
