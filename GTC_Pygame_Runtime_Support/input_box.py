@@ -1,72 +1,16 @@
+from GTC_Pygame_Runtime_Support.basic_class import *
 import os
-import pygame
-import ctypes.wintypes as w
-import ctypes
 
 os.environ["SDL_IME_SHOW_UI"] = "1"
 pygame.init()
 
-CF_UNICODETEXT = 13
 
-u32 = ctypes.WinDLL('user32')
-k32 = ctypes.WinDLL('kernel32')
-
-OpenClipboard = u32.OpenClipboard
-OpenClipboard.argtypes = w.HWND,
-OpenClipboard.restype = w.BOOL
-GetClipboardData = u32.GetClipboardData
-GetClipboardData.argtypes = w.UINT,
-GetClipboardData.restype = w.HANDLE
-GlobalLock = k32.GlobalLock
-GlobalLock.argtypes = w.HGLOBAL,
-GlobalLock.restype = w.LPVOID
-GlobalUnlock = k32.GlobalUnlock
-GlobalUnlock.argtypes = w.HGLOBAL,
-GlobalUnlock.restype = w.BOOL
-CloseClipboard = u32.CloseClipboard
-CloseClipboard.argtypes = None
-CloseClipboard.restype = w.BOOL
-
-
-def get_clipboard_text():
-    text = ""
-    if OpenClipboard(None):
-        h_clip_mem = GetClipboardData(CF_UNICODETEXT)
-        text = ctypes.wstring_at(GlobalLock(h_clip_mem))
-        GlobalUnlock(h_clip_mem)
-        CloseClipboard()
-    return text
-
-
-class InputBox:
-
+class InputBox(BasicInputBox):
     def __init__(self, size, pos, surface, default_text='', remind_text='', background_color=(255, 255, 255), border_color=((0, 0, 0), (0, 112, 255)),
                  font_color=(0, 0, 0), font_type='SimHei', font_size=20, remind_text_color=(160, 160, 160), border_width=2, border_radius=1, fps=60,
                  cursor_color=(0, 0, 0), select_area_color=((51, 103, 209), (200, 200, 200)), do_color_reverse=True):
-        self.size = size
-        self.pos = pos
-        self.rect = pygame.Rect(*pos, *size)
-        self.screen = surface
-        self.surface = pygame.Surface(size).convert_alpha()
-        self.background = None
-        self.text = default_text
-        self.remind_text = remind_text
-        self.background_color = background_color
-        self.border_color = border_color
-        self.font_color = font_color
-        self.font_type = font_type
-        self.font_size = font_size
-        if os.path.exists(font_type):
-            self.font_family = pygame.font.Font(font_type, font_size)
-        else:
-            self.font_family = pygame.font.SysFont(font_type, font_size)
-        self.remind_text_color = remind_text_color
-        self.border_width = border_width
-        self.border_radius = border_radius
-        self.fps = fps
-        self.cursor_color = cursor_color
-        self.dragging = False
-        self.surface.fill((0, 0, 0, 0))
+        super().__init__(size, pos, surface, default_text, remind_text, background_color, border_color, font_color, font_type, font_size,
+                         remind_text_color, border_width, border_radius, fps, cursor_color, select_area_color, do_color_reverse)
         self.text_surface = pygame.Surface((size[0] * 100, size[1])).convert_alpha()
         self.direct_status = [False, False]
         self.direct_timing = [0, 0]
@@ -84,19 +28,11 @@ class InputBox:
         self.selecting_pos = [-1, -1]
         self.selecting_pos_px = [-1, -1]
         self.last_clicked = False
-        self.select_area_color = select_area_color
-        self.do_color_reverse = do_color_reverse
         self.shift_status = False
         self.ctrl_status = False
         self.do_paste = False
         self.do_copy = False
         self.do_cut = False
-
-    def set_as_background(self):
-        self.background = self.surface.copy()
-
-    def in_area(self, mouse_pos):
-        return self.rect.collidepoint(*mouse_pos)
 
     def handel(self, event_r: pygame.event.Event):
         if self.operating:

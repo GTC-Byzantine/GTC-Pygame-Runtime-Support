@@ -1,6 +1,9 @@
+import os
 from typing import List
+
 import pygame
 from pygame import SurfaceType
+
 from GTC_Pygame_Runtime_Support.error import UnexpectedParameter, error0x02
 
 pygame.display.init()
@@ -193,6 +196,93 @@ class BasicPage(object):
         return self._page_trusteeship
 
     def operate(self, mouse_pos, effectiveness, mouse_wheel_status=None, operate_addons=False, mouse_press=None):
+        pass
+
+
+class BasicInputBox:
+    def __init__(self, size, pos, surface, default_text='', remind_text='', background_color=(255, 255, 255), border_color=((0, 0, 0), (0, 112, 255)),
+                 font_color=(0, 0, 0), font_type='SimHei', font_size=20, remind_text_color=(160, 160, 160), border_width=2, border_radius=1, fps=60,
+                 cursor_color=(0, 0, 0), select_area_color=((51, 103, 209), (200, 200, 200)), do_color_reverse=True):
+        """
+        :param size:                    输入框大小
+        :type size:                     List[int] | Tuple[int]
+        :param pos:                     输入框位置
+        :type pos:                      List[int] | Tuple[int]
+        :param surface:                 输入框将位于哪个表面（相对位置）
+        :type surface:                  pygame.SurfaceType
+        :param default_text:            初始文字
+        :type default_text:             str
+        :param remind_text:             提示词
+        :type remind_text:              str
+        :param background_color:        背景色
+        :type background_color:         List[int] | Tuple[int, int, int]
+        :param border_color:            边框颜色
+        :type border_color:             List[int] | Tuple[int, int, int]
+        :param font_color:              文字颜色
+        :type font_color:               List[int] | Tuple[int, int, int]
+        :param font_type:               字体（路径或名称）
+        :type font_type:                str
+        :param font_size:               字体大小
+        :type font_size:                int
+        :param remind_text_color:       提示词颜色
+        :type remind_text_color:        List[int] | Tuple[int, int, int]
+        :param border_width:            边框宽度
+        :type border_width:             int
+        :param border_radius:           边框圆角半径
+        :type border_radius:            int
+        :param fps:                     屏幕刷新频率
+        :type fps:                      int
+        :param cursor_color:            光标颜色
+        :type cursor_color:             List[int] | Tuple[int, int, int]
+        :param select_area_color:       选区颜色
+        :type select_area_color:        List[int] | Tuple[int, int, int]
+        :param do_color_reverse:        选区颜色是否反色
+        :type do_color_reverse:         bool
+        """
+        self.size = size
+        self.pos = pos
+        self.rect = pygame.Rect(*pos, *size)
+        self.screen = surface
+        self.surface = pygame.Surface(size).convert_alpha()
+        self.background = None
+        self.text = default_text
+        self.remind_text = remind_text
+        self.background_color = background_color
+        self.border_color = border_color
+        self.font_color = font_color
+        self.font_type = font_type
+        self.font_size = font_size
+        if os.path.exists(font_type):
+            self.font_family = pygame.font.Font(font_type, font_size)
+        else:
+            self.font_family = pygame.font.SysFont(font_type, font_size)
+        self.remind_text_color = remind_text_color
+        self.border_width = border_width
+        self.border_radius = border_radius
+        self.fps = fps
+        self.cursor_color = cursor_color
+        self.dragging = False
+        self.surface.fill((0, 0, 0, 0))
+        self.select_area_color = select_area_color
+        self.do_color_reverse = do_color_reverse
+
+    def set_as_background(self):
+        self.background = self.surface.copy()
+
+    def in_area(self, mouse_pos):
+        return self.rect.collidepoint(*mouse_pos)
+
+    def handel(self, event_r: pygame.event.Event):
+        pass
+
+    def operate(self, mouse_pos, mouse_press):
+        """
+        :param mouse_pos:               鼠标坐标（相对目标表面）
+        :type mouse_pos:                List[int] | Tuple[int, int]
+        :param mouse_press:             鼠标状态（左键，中键，右键）
+        :type mouse_press:              List[bool] | Tuple[bool, bool, bool]
+        :return:
+        """
         pass
 
 

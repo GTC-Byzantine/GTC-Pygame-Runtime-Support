@@ -36,6 +36,7 @@ class PlainPage(BasicPage):
         self._button_trusteeship: List[BasicButton] = []
         self._surface_trusteeship: List[BasicSurface] = []
         self._page_trusteeship: List[BasicPage] = []
+        self._input_trusteeship: List[BasicInputBox] = []
         self._delta = 0
         self._pos_y = 0
         self._pre_click = False
