@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Tuple
 
 import pygame
 from pygame import SurfaceType
@@ -300,7 +300,19 @@ class BasicPopup:
         self.size = size
         self.pos = pos
         self.screen = screen
-        self.surface = pygame.Surface(self.size)
+        self.surface = pygame.Surface(size).convert_alpha()
+        self.background = None
+        self.surface_trusteeship: List[Tuple[pygame.Surface, List[int]]] = []
+        self.screen_size = [screen.get_width(), screen.get_height()]
+
+    def set_as_background(self):
+        self.background = self.surface.copy()
+
+    def add_surface_trusteeship(self, surface: pygame.Surface, final_pos: List[int]):
+        self.surface_trusteeship.append((surface, final_pos))
+
+    def animation(self, fps, acc):
+        pass
 
     def show(self):
         pass
