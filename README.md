@@ -7,6 +7,12 @@ Finding an English version? [click here](https://github.com/GTC-Software-Studio/
 
 此软件包可用于 Pygame 应用开发，包括但不限于游戏、窗体应用，应于版本大于 3.4.0 的 Python 环境中运行。
 
+你可以使用 pip 下载此软件包
+
+```
+$ pip install GTC_Pygame_Runtime_Support
+```
+
 使用时，你可以像这样导入软件包：
 
 ```python
