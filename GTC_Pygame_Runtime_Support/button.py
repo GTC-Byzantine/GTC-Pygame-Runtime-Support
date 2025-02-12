@@ -70,12 +70,19 @@ class FeedbackButton(BasicButton):
             return True
         return False
 
-    def operate(self, mouse_pos, effectiveness):
+    def operate(self, mouse_pos, mouse_press):
+        """
+        :param mouse_pos:           鼠标坐标
+        :type mouse_pos:            List[int] | Tuple[int, int]
+        :param mouse_press:         鼠标状态
+        :type mouse_press:          List[bool] | Tuple[bool, bool, bool] | Tuple[bool, bool, bool, bool, bool]
+        :return:
+        """
         self.frame.fill((0, 0, 0, 0))
         if self.in_area(mouse_pos):
             self.iter += self.speed
             self.iter = min(self.iter, 12)
-            if effectiveness and not self.lock:
+            if mouse_press[0] and not self.lock:
                 if not self.last_clicked:
                     self.do_cancel = False
                     self.last_clicked = True
@@ -86,7 +93,7 @@ class FeedbackButton(BasicButton):
                 self.color_iter -= 1
                 self.color_iter = max(0, self.color_iter)
                 self.state = False
-            if self.lock and not effectiveness:
+            if self.lock and not mouse_press[0]:
                 self.lock = False
         else:
             self.iter -= self.speed
@@ -94,13 +101,13 @@ class FeedbackButton(BasicButton):
             self.color_iter -= 1
             self.color_iter = max(0, self.color_iter)
             self.state = False
-            if effectiveness:
+            if mouse_press[0]:
                 self.lock = True
                 if self.last_clicked:
                     self.cancel()
             else:
                 self.lock = False
-        if not effectiveness and self.last_clicked and not self.do_cancel:
+        if not mouse_press[0] and self.last_clicked and not self.do_cancel:
             self.on_click = True
         else:
             self.on_click = False
@@ -186,11 +193,18 @@ class DelayButton(BasicButton):
             return True
         return False
 
-    def operate(self, mouse_pos, effectiveness):
+    def operate(self, mouse_pos, mouse_press):
+        """
+        :param mouse_pos:           鼠标坐标
+        :type mouse_pos:            List[int] | Tuple[int, int]
+        :param mouse_press:         鼠标状态
+        :type mouse_press:          List[bool] | Tuple[bool, bool, bool] | Tuple[bool, bool, bool, bool, bool]
+        :return:
+        """
         self.frame.fill((0, 0, 0, 0))
         if self.in_area(mouse_pos):
             self.state_2 = True
-            if effectiveness:
+            if mouse_press[0]:
                 self.state_1 = True
                 if not self.last_clicked:
                     self.do_cancel = False
@@ -201,7 +215,7 @@ class DelayButton(BasicButton):
             else:
                 self.last = False
         else:
-            if effectiveness:
+            if mouse_press[0]:
                 self.state_2 = False
                 self.state_1 = False
                 self.last = False
@@ -281,10 +295,16 @@ class SimpleButtonWithImage(BasicButton):
             return True
         return False
 
-    def operate(self, mouse_pos: Tuple[int, int], effectiveness: bool or Literal[0, 1]):
-
+    def operate(self, mouse_pos, mouse_press):
+        """
+        :param mouse_pos:           鼠标坐标
+        :type mouse_pos:            List[int] | Tuple[int, int]
+        :param mouse_press:         鼠标状态
+        :type mouse_press:          List[bool] | Tuple[bool, bool, bool] | Tuple[bool, bool, bool, bool, bool]
+        :return:
+        """
         if self._in_area(mouse_pos):
-            if effectiveness and not self.lock:
+            if mouse_press[0] and not self.lock:
                 self.state = True
                 if not self.last_clicked:
                     self.do_cancel = False
@@ -293,18 +313,18 @@ class SimpleButtonWithImage(BasicButton):
             else:
                 self.state = False
                 pygame.draw.rect(self.surface, self.hovering, [self.pos[0], self.pos[1], self.size[0], self.size[1]])
-            if self.lock and not effectiveness:
+            if self.lock and not mouse_press[0]:
                 self.lock = False
 
         else:
             pygame.draw.rect(self.surface, self.bg_color, [self.pos[0], self.pos[1], self.size[0], self.size[1]])
-            if effectiveness:
+            if mouse_press[0]:
                 self.lock = True
                 if self.last_clicked:
                     self.cancel()
             else:
                 self.lock = False
-        if not effectiveness and self.last_clicked and not self.do_cancel:
+        if not mouse_press[0] and self.last_clicked and not self.do_cancel:
             self.on_click = True
         else:
             self.on_click = False
