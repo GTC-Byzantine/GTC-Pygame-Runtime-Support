@@ -35,7 +35,7 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = 0
-    button.operate(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3)[0])
+    button.operate(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3))
     pygame.display.flip()
     clock.tick(60)
 
