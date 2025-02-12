@@ -16,7 +16,7 @@ $ pip install GTC_Pygame_Runtime_Support
 使用时，你可以像这样导入软件包：
 
 ```python
-import GTC_Pygame_Runtime_Support as PRS
+import GTC_Pygame_Runtime_Support as gPRS
 ```
 
 软件包内的每个组件有几乎相同的使用方法和属性，通常是`Class()`表示构造函数，`item.operate()`表示将组件贴图到 Surface。接下来将以一个反馈按钮为例展示以上特点：
