@@ -203,42 +203,6 @@ class BasicInputBox:
     def __init__(self, size, pos, surface, default_text='', remind_text='', background_color=(255, 255, 255), border_color=((0, 0, 0), (0, 112, 255)),
                  font_color=(0, 0, 0), font_type='SimHei', font_size=20, remind_text_color=(160, 160, 160), border_width=2, border_radius=1, fps=60,
                  cursor_color=(0, 0, 0), select_area_color=((51, 103, 209), (200, 200, 200)), do_color_reverse=True):
-        """
-        :param size:                    输入框大小
-        :type size:                     List[int] | Tuple[int]
-        :param pos:                     输入框位置
-        :type pos:                      List[int] | Tuple[int]
-        :param surface:                 输入框将位于哪个表面（相对位置）
-        :type surface:                  pygame.SurfaceType
-        :param default_text:            初始文字
-        :type default_text:             str
-        :param remind_text:             提示词
-        :type remind_text:              str
-        :param background_color:        背景色
-        :type background_color:         List[int] | Tuple[int, int, int]
-        :param border_color:            边框颜色
-        :type border_color:             List[int] | Tuple[int, int, int]
-        :param font_color:              文字颜色
-        :type font_color:               List[int] | Tuple[int, int, int]
-        :param font_type:               字体（路径或名称）
-        :type font_type:                str
-        :param font_size:               字体大小
-        :type font_size:                int
-        :param remind_text_color:       提示词颜色
-        :type remind_text_color:        List[int] | Tuple[int, int, int]
-        :param border_width:            边框宽度
-        :type border_width:             int
-        :param border_radius:           边框圆角半径
-        :type border_radius:            int
-        :param fps:                     屏幕刷新频率
-        :type fps:                      int
-        :param cursor_color:            光标颜色
-        :type cursor_color:             List[int] | Tuple[int, int, int]
-        :param select_area_color:       选区颜色
-        :type select_area_color:        List[int] | Tuple[int, int, int]
-        :param do_color_reverse:        选区颜色是否反色
-        :type do_color_reverse:         bool
-        """
         self.size = size
         self.pos = pos
         self.rect = pygame.Rect(*pos, *size)
@@ -311,7 +275,7 @@ class BasicPopup:
     def add_surface_trusteeship(self, surface: pygame.Surface, final_pos: List[int]):
         self.surface_trusteeship.append((surface, final_pos))
 
-    def animation(self, fps, acc):
+    def animation(self, fps, acc, func=None):
         pass
 
     def show(self):

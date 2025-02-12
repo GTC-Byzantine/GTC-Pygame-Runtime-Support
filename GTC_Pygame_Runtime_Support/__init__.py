@@ -7,3 +7,4 @@ import GTC_Pygame_Runtime_Support.surface
 import GTC_Pygame_Runtime_Support.checker
 import GTC_Pygame_Runtime_Support.drag_area
 import GTC_Pygame_Runtime_Support.popup
+import GTC_Pygame_Runtime_Support.return_type

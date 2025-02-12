@@ -1,7 +1,7 @@
 import pygame
 from typing import List
 import ctypes
-from ctypes import  wintypes
+from ctypes import wintypes
 
 
 class DragArea:
@@ -63,4 +63,3 @@ if __name__ == '__main__':
 
         da.modify(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3))
         clock.tick(60)
-

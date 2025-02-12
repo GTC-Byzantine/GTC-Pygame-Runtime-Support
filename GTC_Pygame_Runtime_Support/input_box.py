@@ -1,3 +1,4 @@
+from typing import List, Tuple
 from GTC_Pygame_Runtime_Support.basic_class import *
 import os
 
@@ -9,6 +10,42 @@ class InputBox(BasicInputBox):
     def __init__(self, size, pos, surface, default_text='', remind_text='', background_color=(255, 255, 255), border_color=((0, 0, 0), (0, 112, 255)),
                  font_color=(0, 0, 0), font_type='SimHei', font_size=20, remind_text_color=(160, 160, 160), border_width=2, border_radius=1, fps=60,
                  cursor_color=(0, 0, 0), select_area_color=((51, 103, 209), (200, 200, 200)), do_color_reverse=True):
+        """
+        :param size:                        输入框大小
+        :type size:                         List[int] | Tuple[int, int]
+        :param pos:                         输入框位置
+        :type pos:                          List[int] | Tuple[int, int]
+        :param surface:                     输入框将要显示的 Surface
+        :type surface:                      pygame.Surface
+        :param default_text:                初始默认文字
+        :type default_text:                 str
+        :param remind_text:                 提示词
+        :type remind_text:                  str
+        :param background_color:            背景颜色
+        :type background_color:             List[int] | Tuple[int, int, int]
+        :param border_color:                边框颜色（两个状态）
+        :type border_color:                 List[List[int], List[int]] | Tuple[Tuple[int, int, int], Tuple[int, int, int]]
+        :param font_color:                  正文颜色
+        :type font_color:                   List[int] | Tuple[int, int, int]
+        :param font_type:                   正文字体（系统字体名称或本地字体文件路径）
+        :type font_type:                    str
+        :param font_size:                   正文字体大小
+        :type font_size:                    int
+        :param remind_text_color:           提示词字体颜色
+        :type remind_text_color:            List[int] | Tuple[int, int, int]
+        :param border_width:                边框宽度
+        :type border_width:                 int
+        :param border_radius:               边框圆角半径
+        :type border_radius:                int
+        :param fps:                         窗口真实刷新率
+        :type fps:                          int
+        :param cursor_color:                光标颜色
+        :type cursor_color:                 List[int] | Tuple[int, int, int]
+        :param select_area_color:           选区颜色
+        :type select_area_color:            List[int] | Tuple[int, int, int]
+        :param do_color_reverse:            选中区域是否反色
+        :type do_color_reverse:             bool
+        """
         super().__init__(size, pos, surface, default_text, remind_text, background_color, border_color, font_color, font_type, font_size,
                          remind_text_color, border_width, border_radius, fps, cursor_color, select_area_color, do_color_reverse)
         self.text_surface = pygame.Surface((size[0] * 100, size[1])).convert_alpha()
@@ -33,6 +70,8 @@ class InputBox(BasicInputBox):
         self.do_paste = False
         self.do_copy = False
         self.do_cut = False
+        self.character_surface = []
+        self.character_surface_reverse = []
 
     def handel(self, event_r: pygame.event.Event):
         if self.operating:
@@ -42,6 +81,8 @@ class InputBox(BasicInputBox):
                     for _ in range(abs(self.selecting_pos[0] - self.selecting_pos[1])):
                         try:
                             t_text.pop(min(self.selecting_pos))
+                            self.character_surface.pop(min(self.selecting_pos))
+                            self.character_surface_reverse.pop(min(self.selecting_pos))
                         except IndexError:
                             pass
                     self.text = ''.join(t_text)
@@ -49,6 +90,9 @@ class InputBox(BasicInputBox):
                     self.selecting_pos = [-1, -1]
                 t_text = list(self.text)
                 t_text.insert(self.cursor_position, event_r.text)
+                for c in event_r.text[::-1]:
+                    self.character_surface.insert(self.cursor_position, self.font_family.render(c, 1, self.font_color))
+                    self.character_surface_reverse.insert(self.cursor_position, self.font_family.render(c, 1, list(map(lambda x: 255 - x, self.font_color))))
                 self.text = ''.join(t_text)
                 self.cursor_position += len(event_r.text)
                 self.cursor_timing = 0
@@ -116,6 +160,8 @@ class InputBox(BasicInputBox):
                         t_text = list(self.text)
                         try:
                             t_text.pop(self.cursor_position - 1)
+                            self.character_surface.pop(self.cursor_position - 1)
+                            self.character_surface_reverse.pop(self.cursor_position - 1)
                         except IndexError:
                             pass
                         self.text = ''.join(t_text)
@@ -125,6 +171,8 @@ class InputBox(BasicInputBox):
                     for _ in range(abs(self.selecting_pos[0] - self.selecting_pos[1])):
                         try:
                             t_text.pop(min(self.selecting_pos))
+                            self.character_surface.pop(min(self.selecting_pos))
+                            self.character_surface_reverse.pop(min(self.selecting_pos))
                         except IndexError:
                             pass
                     self.text = ''.join(t_text)
@@ -140,6 +188,8 @@ class InputBox(BasicInputBox):
                     t_text = list(self.text)
                     try:
                         t_text.pop(self.cursor_position)
+                        self.character_surface.pop(self.cursor_position)
+                        self.character_surface_reverse.pop(self.cursor_position)
                     except IndexError:
                         pass
                     self.text = ''.join(t_text)
@@ -171,6 +221,8 @@ class InputBox(BasicInputBox):
                 for _ in range(abs(self.selecting_pos[0] - self.selecting_pos[1])):
                     try:
                         t_text.pop(min(self.selecting_pos))
+                        self.character_surface.pop(min(self.selecting_pos))
+                        self.character_surface_reverse.pop(min(self.selecting_pos))
                     except IndexError:
                         pass
                 self.text = ''.join(t_text)
@@ -199,6 +251,8 @@ class InputBox(BasicInputBox):
                 for _ in range(abs(self.selecting_pos[0] - self.selecting_pos[1])):
                     try:
                         t_text.pop(min(self.selecting_pos))
+                        self.character_surface.pop(min(self.selecting_pos))
+                        self.character_surface_reverse.pop(min(self.selecting_pos))
                     except IndexError:
                         pass
                 self.text = ''.join(t_text)
@@ -222,14 +276,14 @@ class InputBox(BasicInputBox):
         self.text_surface.fill((0, 0, 0, 0))
         if self.text == '' and not self.operating:
             self.text_surface.blit(self.font_family.render(self.remind_text, 1, self.remind_text_color), (pos, (self.size[1] - self.font_size) // 2))
-
         for character in self.text:
             if cnt == self.cursor_position:
                 self.cursor_position_px = pos - 1
             if self.operating:
                 pygame.key.set_text_input_rect((self.pos[0] + pos + self.text_surface_pos, self.pos[1] + (self.size[1] + self.font_size) // 2, 0, 0))
 
-            c_surface = self.font_family.render(character, 1, self.font_color)
+            # c_surface = self.font_family.render(character, 1, self.font_color)
+            c_surface = self.character_surface[cnt]
             if min(self.selecting_pos) <= cnt < max(self.selecting_pos):
                 if self.operating:
                     pygame.draw.rect(self.text_surface, self.select_area_color[0],
@@ -238,7 +292,7 @@ class InputBox(BasicInputBox):
                     pygame.draw.rect(self.text_surface, self.select_area_color[1],
                                      (pos, (self.size[1] - self.font_size) // 2 - 2, c_surface.get_width(), self.font_size + 4))
                 if self.do_color_reverse and self.operating:
-                    c_surface = self.font_family.render(character, 1, list(map(lambda x: 255 - x, self.font_color)))
+                    c_surface = self.character_surface_reverse[cnt]
             self.text_surface.blit(c_surface, (pos, (self.size[1] - self.font_size) // 2))
             self.character_pos.append(pos)
             if self.operating and mouse_press[0]:
