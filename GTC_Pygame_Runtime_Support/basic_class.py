@@ -1,9 +1,10 @@
+# 感谢 zhy 同学，对本项目提供大力支持，并且是本项目的第一个正式使用者（被迫受虐者）
+# 感谢 wxy 同学，对我一直以来的情感支持
+# 感谢 kfy 同学，以各种刁钻的角度测试这个运行库
 import os
 from typing import List, Tuple
-
 import pygame
 from pygame import SurfaceType
-
 from GTC_Pygame_Runtime_Support.error import UnexpectedParameter, error0x02
 
 pygame.display.init()
@@ -16,12 +17,12 @@ class BasicButton(object):
         self.do_cancel = False
         self.cp = []
 
-    def operate(self, mouse_pos, effectiveness):
+    def operate(self, mouse_pos, mouse_press):
         """
         :param mouse_pos:
         :type mouse_pos:            (int, int) | List[int]
-        :param effectiveness:
-        :type effectiveness:        bool
+        :param mouse_press:
+        :type mouse_press:          List[bool] | Tuple[bool, bool, bool] | Tuple[bool, bool, bool, bool, bool]
         :return:
         """
         self.do_cancel: bool = False
@@ -49,7 +50,7 @@ class BasicChecker(object):
         :param mouse_pos:
         :type mouse_pos:                        (int, int) | List[int]
         :param mouse_click:
-        :type mouse_click:                      (bool, bool, bool, bool, bool) | List[int]
+        :type mouse_click:                      (bool, bool, bool, bool, bool) | List[int] | (bool, bool, bool)
         :return:                                bool
         """
         pass
@@ -86,19 +87,19 @@ class BasicSurface:
     def show_button_trusteeship(self):
         return self._button_trusteeship
 
-    def operate_button(self, mouse_pos, effectiveness, do_cancel):
+    def operate_button(self, mouse_pos, mouse_press, do_cancel):
         for button in self._button_trusteeship:
             if self.do_element_show[self._button_trusteeship.index(button)]:
-                button.operate(mouse_pos, effectiveness)
+                button.operate(mouse_pos, mouse_press)
                 if do_cancel:
                     button.cancel()
 
-    def operate(self, mouse_pos, effectiveness, do_cancel=False):
+    def operate(self, mouse_pos, mouse_press, do_cancel=False):
         if self._background is not None:
             self.surface.blit(self._background, (0, 0))
         else:
             self.surface.fill((0, 0, 0, 0))
-        self.operate_button([mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1]], effectiveness, do_cancel)
+        self.operate_button([mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1]], mouse_press, do_cancel)
         self._screen.blit(self.surface, self._pos)
 
     def run_check(self, mouse_pos, mouse_click) -> bool:
@@ -106,7 +107,7 @@ class BasicSurface:
         :param mouse_pos:
         :type mouse_pos:                        (int, int) | List[int]
         :param mouse_click:
-        :type mouse_click:                      (bool, bool, bool, bool, bool) | List[int]
+        :type mouse_click:                      (bool, bool, bool, bool, bool) | List[int] | (bool, bool, bool)
         :return:
         """
         pass
@@ -195,7 +196,7 @@ class BasicPage(object):
     def show_page_trusteeship(self):
         return self._page_trusteeship
 
-    def operate(self, mouse_pos, effectiveness, mouse_wheel_status=None, operate_addons=False, mouse_press=None):
+    def operate(self, mouse_pos, mouse_press, mouse_wheel_status=None, operate_addons=False):
         pass
 
 

@@ -8,10 +8,7 @@ pygame.font.init()
 pygame.display.init()
 
 
-#####
-
 class FeedbackButton(BasicButton):
-    # 初始化反馈按钮
     def __init__(self, size, pos, text, text_size, surface, bg_color=(30, 255, 189), border_color=(255, 255, 255),
                  change_color=((0, 112, 255), (0, 255, 112)), text_color=(0, 0, 0), speed=2, font_type='SimHei'):
         """
@@ -65,8 +62,7 @@ class FeedbackButton(BasicButton):
         self.on_click = False
 
     def in_area(self, mouse_pos):
-        if self.pos[0] <= mouse_pos[0] <= self.size[0] + self.pos[0] and self.pos[1] <= mouse_pos[1] <= self.size[1] + \
-                self.pos[1]:
+        if self.pos[0] <= mouse_pos[0] <= self.size[0] + self.pos[0] and self.pos[1] <= mouse_pos[1] <= self.size[1] + self.pos[1]:
             return True
         return False
 
