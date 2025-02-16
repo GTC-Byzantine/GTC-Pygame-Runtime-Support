@@ -1,50 +1,62 @@
 import pygame
-import sys
+from GTC_Pygame_Runtime_Support.basic_class import BasicSlider
+from GTC_Pygame_Runtime_Support.error import UnexpectedParameter
 
 
-#####
-class Slider:
+class HorizontalSlider(BasicSlider):
+    def __init__(self, size, pos, screen, movable_radium, drag_index=0, movable_color=(18, 107, 174), background_color=(255, 255, 255)):
+        super().__init__(size, pos, screen)
+        self.movable_radium = movable_radium
+        self._drag_index = drag_index
+        self._start_pos = None
+        self._pre_clicked = False
+        self.slide_pos = 0
+        self.slide_range = [0, size[0] - size[1]]
+        if self.slide_range[1] < 0:
+            raise UnexpectedParameter("size[0] 应大于等于 {}, 实际为 {}".format(size[1], size[0]))
+        self.movable_color = movable_color
+        self.background_color = background_color
 
-    def __init__(self, background: pygame.Surface, acceleration: float, surface: pygame.Surface,
-                 direction: tuple[int, int] = (1, 0), initial_speed: int = 5, previous_image=None,
-                 slide_with=False, screen_background=None):
-        self.size = surface.get_size()
-        self.image = pygame.transform.scale(background, self.size)
-        self.acceleration = acceleration
-        self.speed: float = 0
-        self.surface = surface
-        if not isinstance(direction, tuple) or direction[0] not in [-1, 0, 1] or direction[1] not in [-1, 0, 1]:
-            raise TypeError('666 不看文档嘛')
-        self.start_pos = [direction[0] * self.size[0], direction[1] * self.size[1]]
-        self.speed_vector = [-direction[0], -direction[1]]
-        self.initial_speed = initial_speed
-        self.speed = [0, 0]
-        self.acceleration = acceleration
-        self.pos = self.start_pos.copy()
-        self.image_status = previous_image
-        self.do_slide = slide_with
-        self.background = pygame.transform.scale(screen_background, self.size)
-        if isinstance(self.image_status, pygame.Surface):
-            self.image_status = pygame.transform.scale(self.image_status, self.size)
+    def operate(self, mouse_pos, mouse_press):
+        if self.in_area(mouse_pos) or self.sliding:
+            if self._lock:
+                if not mouse_press[self._drag_index]:
+                    self._lock = False
+            else:
+                if not self._pre_clicked and mouse_press[self._drag_index]:
+                    self._start_pos = mouse_pos
+                    self.sliding = False
+                    self._lock = False
+                elif self._pre_clicked and mouse_press[self._drag_index]:
+                    if mouse_pos != self._start_pos:
+                        self.sliding = True
+                    self.delta = mouse_pos[0] - self._start_pos[0]
+                    self.delta = max(self.delta, -self.slide_pos)
+                    self.delta = min(self.delta, self.slide_range[1] - self.slide_pos)
+                elif self._pre_clicked and not mouse_press[self._drag_index]:
+                    self.sliding = False
+                    self.slide_pos += self.delta
+                    self.delta = 0
 
-    def next_frame(self):
+        self._pre_clicked = mouse_press[self._drag_index]
+        self.surface.fill((0, 0, 0, 0))
+        pygame.draw.rect(self.surface, self.background_color, (0, 0, *self._size), border_radius=self._size[1])
+        if self.background is not None:
+            self.surface.blit(self.background, (0, 0))
+        self._screen.blit(self.surface, self._pos)
+        pygame.draw.circle(self._screen, self.movable_color, (self._size[1] // 2 + self.slide_pos + self._pos[0] + self.delta, self._size[1] // 2 + self._pos[1]), self.movable_radium)
 
-        if abs(self.pos[0] + self.speed[0]) <= 10 and abs(self.pos[1] + self.speed[1]) <= 10:
-            return True
-        else:
-            self.surface.fill((255, 255, 255))
-            if self.background is not None:
-                self.surface.blit(self.background, (0, 0))
-            if self.image_status is not None:
-                if self.do_slide:
-                    self.surface.blit(self.image_status, (self.pos[0] - self.size[0], self.pos[1] - self.size[1]))
-                else:
-                    self.surface.blit(self.image_status, (0, 0))
-            for i in [0, 1]:
-                self.speed[i] += self.speed_vector[i] * self.acceleration
-                self.pos[i] += self.speed[i]
-            self.surface.blit(self.image, self.pos)
-            print(self.pos)
-            pygame.display.flip()
-        return False
-#####
+
+if __name__ == '__main__':
+    sc = pygame.display.set_mode((500, 500))
+    hs = HorizontalSlider([200, 6], [150, 200], sc, 4)
+    running = 1
+    clock = pygame.time.Clock()
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = 0
+        sc.fill((0, 0, 0))
+        hs.operate(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3))
+        pygame.display.flip()
+        clock.tick(60)

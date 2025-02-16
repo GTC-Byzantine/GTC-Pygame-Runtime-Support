@@ -32,6 +32,31 @@ class BasicButton(object):
         self.do_cancel = True
 
 
+class BasicSlider(object):
+    def __init__(self, size, pos, screen):
+        self._size = size
+        self._pos = pos
+        self._screen = screen
+        self.surface = pygame.Surface(size).convert_alpha()
+        self.surface.fill((0, 0, 0, 0))
+        self._lock = False
+        self.percent = 0.0
+        self.sliding = False
+        self.delta = 0
+        self.background = None
+
+    def set_as_background(self):
+        self.background = self.surface.copy()
+
+    def in_area(self, mouse_pos):
+        if self._pos[0] <= mouse_pos[0] <= self._size[0] + self._pos[0] and self._pos[1] <= mouse_pos[1] <= self._size[1] + self._pos[1]:
+            return True
+        return False
+
+    def operate(self, mouse_pos, mouse_press):
+        pass
+
+
 class BasicChecker(object):
     def __init__(self, check_range, default_state=False, do_reverse=False):
         """
@@ -152,6 +177,7 @@ class BasicPage(object):
         self._button_trusteeship: List[BasicButton] = []
         self._surface_trusteeship: List[BasicSurface] = []
         self._page_trusteeship: List[BasicPage] = []
+        self._input_trusteeship: List[BasicInputBox] = []
         self.cp = []
 
     def change_blit_pos(self, pos):
@@ -195,6 +221,12 @@ class BasicPage(object):
 
     def show_page_trusteeship(self):
         return self._page_trusteeship
+
+    def add_input_trusteeship(self, input_box):
+        self._input_trusteeship.append(input_box)
+
+    def show_input_trusteeship(self):
+        return self._input_trusteeship
 
     def operate(self, mouse_pos, mouse_press, mouse_wheel_status=None, operate_addons=False):
         pass
@@ -245,7 +277,7 @@ class BasicInputBox:
         :param mouse_pos:               鼠标坐标（相对目标表面）
         :type mouse_pos:                List[int] | Tuple[int, int]
         :param mouse_press:             鼠标状态（左键，中键，右键）
-        :type mouse_press:              List[bool] | Tuple[bool, bool, bool]
+        :type mouse_press:              List[bool] | Tuple[bool, bool, bool] | (bool, bool, bool, bool, bool)
         :return:
         """
         pass

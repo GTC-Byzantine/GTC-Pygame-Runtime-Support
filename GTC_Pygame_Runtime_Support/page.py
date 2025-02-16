@@ -1,7 +1,5 @@
 from typing import List
-
 import pygame
-
 from GTC_Pygame_Runtime_Support.basic_class import *
 from GTC_Pygame_Runtime_Support.error import *
 
@@ -34,19 +32,14 @@ class PlainPage(BasicPage):
         self.surface = pygame.Surface(self._real_size)
         self._pos = pos
         self._screen = screen
-        self._sliding = False
-        self._button_trusteeship: List[BasicButton] = []
-        self._surface_trusteeship: List[BasicSurface] = []
-        self._page_trusteeship: List[BasicPage] = []
-        self._input_trusteeship: List[BasicInputBox] = []
-        self._delta = 0
+        self.sliding = False
+        self.delta = 0
         self._pos_y = 0
         self._pre_click = False
         self._pre_pos: List[int] = [0, 0]
         self._acc = acc
         self._speed = 0
         self._last_delta = 0
-        self._ps = 0
         self._lock = False
         self._wheel_support = wheel_support
         self._background = None
@@ -73,7 +66,7 @@ class PlainPage(BasicPage):
     def in_area(self, mouse_pos):
         if self._pos[0] <= mouse_pos[0] <= self._size[0] + self._pos[0] and self._pos[1] <= mouse_pos[1] <= self._size[1] + self._pos[1]:
             return not self._conflict_check(
-                [mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1] - self._pos_y - self._delta])
+                [mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1] - self._pos_y - self.delta])
         return False
 
     def _reverse(self):
@@ -104,30 +97,28 @@ class PlainPage(BasicPage):
                 self._speed = -20
             elif mouse_wheel_status[1]:
                 self._speed = 20
-        if self.in_area(mouse_pos) or self._sliding:
+        if self.in_area(mouse_pos) or self.sliding:
             if not self._lock:
                 if not self._pre_click and mouse_press[self._drag_index]:
                     self._pre_pos = mouse_pos
-                    self._ps = 1
-                    self._sliding = False
+                    self.sliding = False
                     self._lock = False
 
                 elif self._pre_click and mouse_press[self._drag_index]:
                     if self._pre_pos != mouse_pos:
-                        self._sliding = True
-                    self._delta = mouse_pos[1] - self._pre_pos[1]
-                    self._speed = self._delta - self._last_delta
-                    self._last_delta = self._delta
-                    self._ps += 1
-                    if self._pos_y + self._delta > 0:
-                        self._delta -= (self._pos_y + self._delta) // self._acc
-                    elif self._pos_y + self._delta < self._size[1] - self._real_size[1]:
-                        self._delta -= (self._pos_y + self._delta - self._size[1] + self._real_size[1]) // self._acc
+                        self.sliding = True
+                    self.delta = mouse_pos[1] - self._pre_pos[1]
+                    self._speed = self.delta - self._last_delta
+                    self._last_delta = self.delta
+                    if self._pos_y + self.delta > 0:
+                        self.delta -= (self._pos_y + self.delta) // self._acc
+                    elif self._pos_y + self.delta < self._size[1] - self._real_size[1]:
+                        self.delta -= (self._pos_y + self.delta - self._size[1] + self._real_size[1]) // self._acc
 
                 elif self._pre_click and not mouse_press[self._drag_index]:
-                    self._sliding = False
-                    self._pos_y += self._delta
-                    self._delta = 0
+                    self.sliding = False
+                    self._pos_y += self.delta
+                    self.delta = 0
 
                 else:
                     self._reverse()
@@ -145,21 +136,24 @@ class PlainPage(BasicPage):
             else:
                 self._lock = False
         if operate_addons:
-            virtual_mouse_pos = [mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1] - self._pos_y - self._delta]
+            virtual_mouse_pos = [mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1] - self._pos_y - self.delta]
             for item in self._button_trusteeship:
                 item.operate(virtual_mouse_pos, mouse_press)
-                if self._sliding:
+                if self.sliding:
                     item.cancel()
 
             for sur in self._surface_trusteeship:
                 sur.run_check(virtual_mouse_pos, mouse_press)
-                sur.operate(virtual_mouse_pos, mouse_press[0], self._sliding)
+                sur.operate(virtual_mouse_pos, mouse_press[0], self.sliding)
 
             for page in self._page_trusteeship:
                 page.operate(virtual_mouse_pos, mouse_press, mouse_wheel_status, operate_addons)
 
+            for input_box in self._input_trusteeship:
+                input_box.operate(virtual_mouse_pos, mouse_press)
+
         self._frame.fill(self._grounding)
-        self._frame.blit(self.surface, (0, self._pos_y + self._delta))
+        self._frame.blit(self.surface, (0, self._pos_y + self.delta))
         if self._screen is not None:
             self._screen.blit(self._frame, self._pos)
 
