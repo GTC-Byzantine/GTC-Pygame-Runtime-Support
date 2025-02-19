@@ -231,6 +231,10 @@ class InputBox(BasicInputBox):
             t_text = list(self.text)
             t_text.insert(self.cursor_position, clip_content)
             self.text = ''.join(t_text)
+            for c in clip_content[::-1]:
+                self.character_surface.insert(self.cursor_position, self.font_family.render(c, 1, self.font_color))
+                self.character_surface_reverse.insert(self.cursor_position,
+                                                      self.font_family.render(c, 1, list(map(lambda x: 255 - x, self.font_color))))
             self.cursor_position += len(clip_content)
             self.do_paste = False
         if self.do_copy:

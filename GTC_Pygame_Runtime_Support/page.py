@@ -61,6 +61,9 @@ class PlainPage(BasicPage):
         for page in self._page_trusteeship:
             if page.in_area(mouse_pos):
                 return True
+        for slider in self._slider_trusteeship:
+            if slider.in_area(mouse_pos):
+                return True
         return False
 
     def in_area(self, mouse_pos):
@@ -151,6 +154,9 @@ class PlainPage(BasicPage):
 
             for input_box in self._input_trusteeship:
                 input_box.operate(virtual_mouse_pos, mouse_press)
+
+            for slider in self._slider_trusteeship:
+                slider.operate(virtual_mouse_pos, mouse_press)
 
         self._frame.fill(self._grounding)
         self._frame.blit(self.surface, (0, self._pos_y + self.delta))

@@ -56,6 +56,9 @@ class BasicSlider(object):
     def operate(self, mouse_pos, mouse_press):
         pass
 
+    def change_pos(self, pos: Tuple[int, int]):
+        self._pos = pos
+
 
 class BasicChecker(object):
     def __init__(self, check_range, default_state=False, do_reverse=False):
@@ -178,6 +181,7 @@ class BasicPage(object):
         self._surface_trusteeship: List[BasicSurface] = []
         self._page_trusteeship: List[BasicPage] = []
         self._input_trusteeship: List[BasicInputBox] = []
+        self._slider_trusteeship = []
         self.cp = []
 
     def change_blit_pos(self, pos):
@@ -227,6 +231,12 @@ class BasicPage(object):
 
     def show_input_trusteeship(self):
         return self._input_trusteeship
+
+    def add_slider_trusteeship(self, item):
+        self._slider_trusteeship.append(item)
+
+    def show_slider_trusteeship(self):
+        return self._slider_trusteeship
 
     def operate(self, mouse_pos, mouse_press, mouse_wheel_status=None, operate_addons=False):
         pass
@@ -281,6 +291,9 @@ class BasicInputBox:
         :return:
         """
         pass
+
+    def change_pos(self, pos: Tuple[int, int]):
+        self.pos = pos
 
 
 class BasicPopup:

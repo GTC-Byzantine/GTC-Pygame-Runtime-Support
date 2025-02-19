@@ -249,6 +249,9 @@ class DelayButton(BasicButton):
         self.frame.blit(self.text, self.font_rect)
         self.surface.blit(self.frame, self.pos)
 
+    def change_pos(self, pos: Tuple[int, int]):
+        self.pos = pos
+
 
 class SimpleButtonWithImage(BasicButton):
     def __init__(self, pos: List[int], surface: pygame.Surface, size: Tuple[int, int] = (200, 200),
@@ -333,3 +336,6 @@ class SimpleButtonWithImage(BasicButton):
 
         if self.text_ini is not None:
             self.surface.blit(self.text, self.text.get_rect(center=self.text_pos))
+
+    def change_pos(self, pos: Tuple[int, int]):
+        self.pos = pos
