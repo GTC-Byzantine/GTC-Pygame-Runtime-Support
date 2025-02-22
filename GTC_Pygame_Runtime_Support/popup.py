@@ -22,6 +22,7 @@ class SimplePopup(BasicPopup):
         :type func:                     function
         :return:                        None
         """
+        self.at_pos = 0
         background = self.screen.copy()
         clock = pygame.time.Clock()
         shadow = pygame.Surface(self.screen_size).convert_alpha()
@@ -51,6 +52,8 @@ class SimplePopup(BasicPopup):
                 if event_r.type == pygame.QUIT:
                     return user_quit
 
+            if self.at_pos >= 5:
+                break
             self.surface.fill((255, 255, 255))
             if self.background is not None:
                 self.surface.blit(self.background, (0, 0))
@@ -58,7 +61,8 @@ class SimplePopup(BasicPopup):
             for i in range(2):
                 real_pos[i] = (real_pos[i] - self.pos[i]) / acc + self.pos[i]
             if abs(real_pos[0] - self.pos[0]) <= 2 and abs(real_pos[1] - self.pos[1]) <= 2:
-                break
+                self.at_pos += 1
+                real_pos = self.pos.copy()
 
             for sur in self.surface_trusteeship:
                 sur[0]: pygame.Surface

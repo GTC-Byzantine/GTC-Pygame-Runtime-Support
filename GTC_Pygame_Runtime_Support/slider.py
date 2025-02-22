@@ -134,7 +134,7 @@ class HorizontalSlideBar(BasicSlider):
                     self._start_pos = mouse_pos
                     self.sliding = False
                     self._lock = False
-                    if (self.slide_pos - self.movable_width // 2 - self._size[1] // 2 <= mouse_pos[0] - self._pos[0]
+                    if (self.slide_pos - self.movable_width // 2 <= mouse_pos[0] - self._pos[0]
                             <= self.slide_pos + self.movable_width // 2 + self._size[1]):
                         self._drag_pattern = 1
                     else:
@@ -208,7 +208,7 @@ class VerticalSlideBar(BasicSlider):
                     self._start_pos = mouse_pos
                     self.sliding = False
                     self._lock = False
-                    if (self.slide_pos - self.movable_width // 2 - self._size[0] // 2 <= mouse_pos[1] - self._pos[1]
+                    if (self.slide_pos - self.movable_width // 2 <= mouse_pos[1] - self._pos[1]
                             <= self.slide_pos + self.movable_width // 2 + self._size[0]):
                         self._drag_pattern = 1
                     else:

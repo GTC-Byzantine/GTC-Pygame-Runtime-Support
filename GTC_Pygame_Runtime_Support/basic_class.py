@@ -92,7 +92,7 @@ class BasicChecker(object):
 
 
 class BasicSurface:
-    def __init__(self, size, pos, screen):
+    def __init__(self, size, pos, screen, border_radius=0):
         self._size = size
         self._pos = pos
         self.surface: SurfaceType = pygame.Surface(size).convert_alpha()
@@ -102,6 +102,7 @@ class BasicSurface:
         self.do_element_show = []
         self._background = None
         self.cp = []
+        self.border_radius = border_radius
 
     def set_as_background(self):
         self._background = self.surface.copy()
@@ -126,7 +127,7 @@ class BasicSurface:
         if self._background is not None:
             self.surface.blit(self._background, (0, 0))
         else:
-            self.surface.fill((0, 0, 0, 0))
+             pygame.draw.rect(self.surface, (), (0, 0, *self._size), border_radius=self.border_radius)
         self.operate_button([mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1]], mouse_press, do_cancel)
         self._screen.blit(self.surface, self._pos)
 

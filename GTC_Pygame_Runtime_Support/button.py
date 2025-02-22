@@ -260,7 +260,7 @@ class SimpleButtonWithImage(BasicButton):
                  clicking_color: Tuple[int, int, int] or Tuple[int, int, int, int] = (252, 248, 245),
                  bg_image: pygame.Surface or None = None,
                  text: Tuple[str, Tuple[int, int], int, Tuple[int, int, int]] or None = None,
-                 font: str = 'SimHei'):
+                 font: str = 'SimHei', border_radius=10):
         super().__init__()
         self.size = size
         self.bg_color = bg_color
@@ -280,6 +280,7 @@ class SimpleButtonWithImage(BasicButton):
         self.cp = []
         self.last_clicked = False
         self.on_click = False
+        self.border_radius = border_radius
         if text is not None:
             self.text_size = text[2]
             self.text_color = text[3]
@@ -308,15 +309,17 @@ class SimpleButtonWithImage(BasicButton):
                 if not self.last_clicked:
                     self.do_cancel = False
                     self.last_clicked = True
-                pygame.draw.rect(self.surface, self.clicking, [self.pos[0], self.pos[1], self.size[0], self.size[1]])
+                pygame.draw.rect(self.surface, self.clicking, [self.pos[0], self.pos[1], self.size[0], self.size[1]],
+                                 border_radius=self.border_radius)
             else:
                 self.state = False
-                pygame.draw.rect(self.surface, self.hovering, [self.pos[0], self.pos[1], self.size[0], self.size[1]])
+                pygame.draw.rect(self.surface, self.hovering, [self.pos[0], self.pos[1], self.size[0], self.size[1]],
+                                 border_radius=self.border_radius)
             if self.lock and not mouse_press[0]:
                 self.lock = False
 
         else:
-            pygame.draw.rect(self.surface, self.bg_color, [self.pos[0], self.pos[1], self.size[0], self.size[1]])
+            pygame.draw.rect(self.surface, self.bg_color, [self.pos[0], self.pos[1], self.size[0], self.size[1]], border_radius=self.border_radius)
             if mouse_press[0]:
                 self.lock = True
                 if self.last_clicked:
@@ -331,8 +334,7 @@ class SimpleButtonWithImage(BasicButton):
             self.last_clicked = False
         if self.bg_image is not None:
             self.surface.blit(self.bg_image, self.pos)
-        pygame.draw.rect(self.surface, (0, 0, 0), [self.pos[0], self.pos[1], self.size[0], self.size[1]],
-                         width=2)
+        pygame.draw.rect(self.surface, (0, 0, 0), [self.pos[0], self.pos[1], self.size[0], self.size[1]], width=2, border_radius=self.border_radius)
 
         if self.text_ini is not None:
             self.surface.blit(self.text, self.text.get_rect(center=self.text_pos))

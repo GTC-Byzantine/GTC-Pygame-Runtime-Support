@@ -4,8 +4,8 @@ from GTC_Pygame_Runtime_Support.checker import AlwaysTrue
 
 
 class CommonSurface(BasicSurface):
-    def __init__(self, size, pos, screen):
-        super().__init__(size, pos, screen)
+    def __init__(self, size, pos, screen, border_radius=0):
+        super().__init__(size, pos, screen, border_radius)
 
     def run_check(self, mouse_pos, mouse_click):
         for i in range(len(self.do_element_show)):

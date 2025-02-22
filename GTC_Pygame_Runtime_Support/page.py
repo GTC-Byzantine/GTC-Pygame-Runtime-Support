@@ -147,7 +147,7 @@ class PlainPage(BasicPage):
 
             for sur in self._surface_trusteeship:
                 sur.run_check(virtual_mouse_pos, mouse_press)
-                sur.operate(virtual_mouse_pos, mouse_press[0], self.sliding)
+                sur.operate(virtual_mouse_pos, mouse_press, self.sliding)
 
             for page in self._page_trusteeship:
                 page.operate(virtual_mouse_pos, mouse_press, mouse_wheel_status, operate_addons)
