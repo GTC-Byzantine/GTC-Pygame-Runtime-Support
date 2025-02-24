@@ -72,6 +72,10 @@ class InputBox(BasicInputBox):
         self.do_cut = False
         self.character_surface = []
         self.character_surface_reverse = []
+        for c in default_text[::-1]:
+            self.character_surface.insert(self.cursor_position, self.font_family.render(c, 1, self.font_color))
+            self.character_surface_reverse.insert(self.cursor_position,
+                                                      self.font_family.render(c, 1, list(map(lambda x: 255 - x, self.font_color))))
 
     def handel(self, event_r: pygame.event.Event):
         if self.operating:
