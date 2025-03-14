@@ -1,19 +1,22 @@
+import typing
 import pygame
 from GTC_Pygame_Runtime_Support.basic_class import BasicPopup
 from GTC_Pygame_Runtime_Support.return_type import user_quit
+from GTC_Pygame_Runtime_Support.supported_types import *
 
 
 class SimplePopup(BasicPopup):
-    def __init__(self, size, pos, screen, start_pos):
+    def __init__(self, size: Coordinate, pos: Coordinate, screen: pygame.Surface, start_pos: Coordinate):
         """
         :param start_pos:               动画起始位置
-        :type start_pos                 List[int] | Tuple[int, int]
         """
         super().__init__(size, pos, screen)
         self.start_pos = start_pos
+        self.at_pos = 0
 
-    def animation(self, fps, acc, func=None) -> str:
+    def animation(self, fps, acc, func=None, args: typing.List=()) -> str:
         """
+        :param args:                    函数的自定义参数
         :param fps:                     窗口真实刷新率
         :type fps:                      int
         :param acc:                     动画速度
@@ -76,7 +79,7 @@ class SimplePopup(BasicPopup):
             clock.tick(fps)
             c += 1
         if func is not None:
-            func()
+            func(*args)
         while True:
             for event_r in pygame.event.get():
                 if event_r.type == pygame.QUIT:

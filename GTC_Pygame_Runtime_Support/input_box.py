@@ -1,5 +1,6 @@
-from typing import List, Tuple
-from GTC_Pygame_Runtime_Support.basic_class import *
+# from typing import List, Tuple
+from GTC_Pygame_Runtime_Support.basic_class import BasicInputBox
+import pygame
 import os
 
 os.environ["SDL_IME_SHOW_UI"] = "1"
@@ -12,39 +13,22 @@ class InputBox(BasicInputBox):
                  cursor_color=(0, 0, 0), select_area_color=((51, 103, 209), (200, 200, 200)), do_color_reverse=True):
         """
         :param size:                        输入框大小
-        :type size:                         List[int] | Tuple[int, int]
         :param pos:                         输入框位置
-        :type pos:                          List[int] | Tuple[int, int]
         :param surface:                     输入框将要显示的 Surface
-        :type surface:                      pygame.Surface
         :param default_text:                初始默认文字
-        :type default_text:                 str
         :param remind_text:                 提示词
-        :type remind_text:                  str
         :param background_color:            背景颜色
-        :type background_color:             List[int] | Tuple[int, int, int]
         :param border_color:                边框颜色（两个状态）
-        :type border_color:                 List[List[int], List[int]] | Tuple[Tuple[int, int, int], Tuple[int, int, int]]
         :param font_color:                  正文颜色
-        :type font_color:                   List[int] | Tuple[int, int, int]
         :param font_type:                   正文字体（系统字体名称或本地字体文件路径）
-        :type font_type:                    str
         :param font_size:                   正文字体大小
-        :type font_size:                    int
         :param remind_text_color:           提示词字体颜色
-        :type remind_text_color:            List[int] | Tuple[int, int, int]
         :param border_width:                边框宽度
-        :type border_width:                 int
         :param border_radius:               边框圆角半径
-        :type border_radius:                int
         :param fps:                         窗口真实刷新率
-        :type fps:                          int
         :param cursor_color:                光标颜色
-        :type cursor_color:                 List[int] | Tuple[int, int, int]
         :param select_area_color:           选区颜色
-        :type select_area_color:            List[int] | Tuple[int, int, int]
         :param do_color_reverse:            选中区域是否反色
-        :type do_color_reverse:             bool
         """
         super().__init__(size, pos, surface, default_text, remind_text, background_color, border_color, font_color, font_type, font_size,
                          remind_text_color, border_width, border_radius, fps, cursor_color, select_area_color, do_color_reverse)
@@ -74,8 +58,7 @@ class InputBox(BasicInputBox):
         self.character_surface_reverse = []
         for c in default_text[::-1]:
             self.character_surface.insert(self.cursor_position, self.font_family.render(c, 1, self.font_color))
-            self.character_surface_reverse.insert(self.cursor_position,
-                                                      self.font_family.render(c, 1, list(map(lambda x: 255 - x, self.font_color))))
+            self.character_surface_reverse.insert(self.cursor_position, self.font_family.render(c, 1, list(map(lambda x: 255 - x, self.font_color))))
 
     def handel(self, event_r: pygame.event.Event):
         if self.operating:
@@ -295,7 +278,7 @@ class InputBox(BasicInputBox):
             if min(self.selecting_pos) <= cnt < max(self.selecting_pos):
                 if self.operating:
                     pygame.draw.rect(self.text_surface, self.select_area_color[0],
-                                     (pos, (self.size[1] - self.font_size) // 2 - 2, c_surface.get_width(), self.font_size + 4))
+                                     (pos, (self.size[1] - self.font_size) // 2 + 1, c_surface.get_width(), self.font_size + 4))
                 else:
                     pygame.draw.rect(self.text_surface, self.select_area_color[1],
                                      (pos, (self.size[1] - self.font_size) // 2 - 2, c_surface.get_width(), self.font_size + 4))
@@ -338,9 +321,9 @@ class InputBox(BasicInputBox):
         if self.cursor_position_px > -self.text_surface_pos + self.size[0] - 10:
             self.text_surface_pos = -(self.cursor_position_px - self.size[0] + 10)
         if self.operating and (self.cursor_timing % (self.fps // 1) <= (self.fps // 2)):
-            pygame.draw.rect(self.text_surface, self.cursor_color, (self.cursor_position_px, (self.size[1] - self.font_size) // 2, 2, self.font_size))
+            pygame.draw.rect(self.text_surface, self.cursor_color, (self.cursor_position_px, (self.size[1] - self.font_size) // 2 + 3, 2, self.font_size))
 
-        self.surface.blit(self.text_surface, (self.text_surface_pos + 4, 0))
+        self.surface.blit(self.text_surface, (self.text_surface_pos + 4, -3))
         self.last_clicked = mouse_press[0]
 
         if self.operating:

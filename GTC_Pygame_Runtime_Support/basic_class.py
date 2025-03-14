@@ -3,8 +3,10 @@
 # 感谢 kfy 同学，以各种刁钻的角度测试这个运行库
 import os
 from typing import List, Tuple
+from GTC_Pygame_Runtime_Support.supported_types import *
 import pygame
 from pygame import SurfaceType
+
 from GTC_Pygame_Runtime_Support.error import UnexpectedParameter, error0x02
 
 pygame.display.init()
@@ -17,10 +19,10 @@ class BasicButton(object):
         self.do_cancel = False
         self.cp = []
 
-    def operate(self, mouse_pos, mouse_press):
+    def operate(self, mouse_pos: MousePosType, mouse_press: MousePressType):
         """
         :param mouse_pos:
-        :type mouse_pos:            (int, int) | List[int]
+        :type mouse_pos:
         :param mouse_press:
         :type mouse_press:          List[bool] | Tuple[bool, bool, bool] | Tuple[bool, bool, bool, bool, bool]
         :return:
@@ -33,7 +35,7 @@ class BasicButton(object):
 
 
 class BasicSlider(object):
-    def __init__(self, size, pos, screen):
+    def __init__(self, size: Coordinate, pos: Coordinate, screen: pygame.Surface):
         self._size = size
         self._pos = pos
         self._screen = screen
@@ -127,7 +129,7 @@ class BasicSurface:
         if self._background is not None:
             self.surface.blit(self._background, (0, 0))
         else:
-             pygame.draw.rect(self.surface, (), (0, 0, *self._size), border_radius=self.border_radius)
+            pygame.draw.rect(self.surface, (), (0, 0, *self._size), border_radius=self.border_radius)
         self.operate_button([mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1]], mouse_press, do_cancel)
         self._screen.blit(self.surface, self._pos)
 
@@ -298,14 +300,11 @@ class BasicInputBox:
 
 
 class BasicPopup:
-    def __init__(self, size, pos, screen):
+    def __init__(self, size: Coordinate, pos: Coordinate, screen: pygame.Surface):
         """
         :param size:                    弹出框大小
-        :type size:                     List[int] | Tuple[int, int]
         :param pos:                     弹出框位置
-        :type pos:                      List[int] | Tuple[int, int]
         :param screen:                  要显示在哪个 Surface 上
-        :type screen:                   pygame.SurfaceType
         """
         self.clock = pygame.time.Clock()
         self.size = size
@@ -322,11 +321,38 @@ class BasicPopup:
     def add_surface_trusteeship(self, surface: pygame.Surface, final_pos: List[int]):
         self.surface_trusteeship.append((surface, final_pos))
 
-    def animation(self, fps, acc, func=None):
+    def animation(self, fps, acc, func=None, args=None):
         pass
 
     def show(self):
         pass
 
     def loop(self, function, args):
+        pass
+
+
+class BasicFileDropArea(object):
+    def __init__(self, size: Coordinate, pos: Coordinate, screen: pygame.Surface):
+        self.size = size
+        self.pos = pos
+        self.screen = screen
+        self.file_path = []
+        self.dropped = False
+
+    def handel(self, event_r: pygame.event.Event, mouse_pos: MousePosType):
+        pass
+
+    def clear_files(self):
+        self.file_path.clear()
+
+    def clear_state(self):
+        self.dropped = False
+
+class BasicTypography:
+    def __init__(self, font_family: pygame.font.Font, font_size: int, font_color: ColorValue, target_width: int):
+        self.font_family = font_family
+        self.font_size = font_size
+        self.font_color = font_color
+        self.target_width = target_width
+    def generate(self, text):
         pass

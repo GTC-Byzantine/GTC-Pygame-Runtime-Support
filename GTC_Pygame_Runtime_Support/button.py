@@ -3,6 +3,7 @@ from typing import *
 from typing import List, Tuple
 import pygame
 from GTC_Pygame_Runtime_Support.basic_class import *
+from GTC_Pygame_Runtime_Support.supported_types import *
 
 pygame.font.init()
 pygame.display.init()
@@ -254,13 +255,13 @@ class DelayButton(BasicButton):
 
 
 class SimpleButtonWithImage(BasicButton):
-    def __init__(self, pos: List[int], surface: pygame.Surface, size: Tuple[int, int] = (200, 200),
-                 bg_color: Tuple[int, int, int] or Tuple[int, int, int, int] = (255, 255, 255),
-                 hovering_color: Tuple[int, int, int] or Tuple[int, int, int, int] = (249, 249, 249),
-                 clicking_color: Tuple[int, int, int] or Tuple[int, int, int, int] = (252, 248, 245),
+    def __init__(self, pos: Coordinate, surface: pygame.Surface, size: Coordinate = (200, 200),
+                 bg_color: ColorValue = (255, 255, 255),
+                 hovering_color: ColorValue = (249, 249, 249),
+                 clicking_color: ColorValue = (252, 248, 245),
                  bg_image: pygame.Surface or None = None,
-                 text: Tuple[str, Tuple[int, int], int, Tuple[int, int, int]] or None = None,
-                 font: str = 'SimHei', border_radius=10):
+                 text: Union[Tuple[str, Coordinate, int, ColorValue]] = ('', (0, 0), 1, (0, 0, 0)),
+                 font: str = 'SimHei', border_radius: int=10, border_width: int = 2):
         super().__init__()
         self.size = size
         self.bg_color = bg_color
@@ -281,6 +282,7 @@ class SimpleButtonWithImage(BasicButton):
         self.last_clicked = False
         self.on_click = False
         self.border_radius = border_radius
+        self.border_width = border_width
         if text is not None:
             self.text_size = text[2]
             self.text_color = text[3]
@@ -334,7 +336,8 @@ class SimpleButtonWithImage(BasicButton):
             self.last_clicked = False
         if self.bg_image is not None:
             self.surface.blit(self.bg_image, self.pos)
-        pygame.draw.rect(self.surface, (0, 0, 0), [self.pos[0], self.pos[1], self.size[0], self.size[1]], width=2, border_radius=self.border_radius)
+        if self.border_width:
+            pygame.draw.rect(self.surface, (0, 0, 0), [self.pos[0], self.pos[1], self.size[0], self.size[1]], width=self.border_width, border_radius=self.border_radius)
 
         if self.text_ini is not None:
             self.surface.blit(self.text, self.text.get_rect(center=self.text_pos))
