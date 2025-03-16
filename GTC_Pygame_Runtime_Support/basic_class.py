@@ -3,6 +3,9 @@
 # 感谢 kfy 同学，以各种刁钻的角度测试这个运行库
 import os
 from typing import List, Tuple
+
+import unicodedata
+
 from GTC_Pygame_Runtime_Support.supported_types import *
 import pygame
 from pygame import SurfaceType
@@ -354,5 +357,8 @@ class BasicTypography:
         self.font_size = font_size
         self.font_color = font_color
         self.target_width = target_width
+
+    def is_punctuation(self, char):
+        return unicodedata.category(char).startswith("P")
     def generate(self, text):
         pass

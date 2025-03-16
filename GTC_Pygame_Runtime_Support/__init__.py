@@ -10,4 +10,5 @@ import GTC_Pygame_Runtime_Support.popup
 import GTC_Pygame_Runtime_Support.return_type
 import GTC_Pygame_Runtime_Support.slider
 import GTC_Pygame_Runtime_Support.file_drag_area
+import GTC_Pygame_Runtime_Support.typography
 # import GTC_Pygame_Runtime_Support.types

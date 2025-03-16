@@ -35,7 +35,8 @@ class Lettering(BasicTypography):
 
 
 class Wording(BasicTypography):
-    exception_list = [['\u4e00', '\u9fa5'], ['\u3040', '\u30ff'], ['\u31f0', '\u31ff'], ['\uac00', '\ud7af'], ['\u1100', '\u11ff'], ['\u3130', '\u318f']]
+    exception_list = [['\u4e00', '\u9fa5'], ['\u3040', '\u30ff'], ['\u31f0', '\u31ff'], ['\uac00', '\ud7af'], ['\u1100', '\u11ff'], ['\u3130', '\u318f'], ['\n', '\n']]
+    rendered_char = {}
     def is_in_exc(self, char):
         for e in self.exception_list:
             if e[0] <= char <= e[1]:
@@ -44,7 +45,7 @@ class Wording(BasicTypography):
         word_list = []
         i = 0
         while i < len(text):
-            if self.is_in_exc(text[i]):
+            if self.is_in_exc(text[i]) or self.is_punctuation(text[i]):
                 word_list.append(text[i])
                 i += 1
             else:
@@ -52,7 +53,7 @@ class Wording(BasicTypography):
                 for c in range(len(text[i + 1:])):
                     if text[i + c + 1] == '\r':
                         pass
-                    elif self.is_in_exc(text[i + 1 + c]) or text[i + 1 + c] == ' ':
+                    elif self.is_in_exc(text[i + 1 + c]) or text[i + 1 + c] == ' ' or self.is_punctuation(text[i + 1 + c]):
                         space_index = i + 1 + c
                         break
                 if space_index == -1:
@@ -62,17 +63,30 @@ class Wording(BasicTypography):
                     word_list.append(text[i:space_index])
                     i = space_index
         return word_list
+    def get_render(self, char):
+        if char in self.rendered_char:
+            return self.rendered_char[char]
+        self.rendered_char[char] = self.font_family.render(char, 1, self.font_color)
+        return self.rendered_char[char]
     def generate(self, text):
         column: List[List[pygame.Surface]] = [[]]
         current_width = 0
         max_length = self.target_width
+        chars = [[]]
 
         for char in self.word_split(text):
+            if char == '\n':
+                column.append([])
+                chars.append([])
+                current_width = 0
+                continue
             prerender = self.font_family.render(char, 1, self.font_color)
             if prerender.get_width() + current_width <= self.target_width:
                 column[-1].append(prerender)
+                chars[-1].append(char)
             else:
                 column.append([prerender])
+                chars.append([char])
                 max_length = max(max_length, prerender.get_width())
                 current_width = 0
             current_width += prerender.get_width()
@@ -80,11 +94,13 @@ class Wording(BasicTypography):
         sur = pygame.Surface((max_length, height + self.font_size)).convert_alpha()
         sur.fill((0, 0, 0, 0))
         current_height = self.font_size // 2
+        # for c in chars:
         for c in column:
             current_width = 0
             for char in c:
                 sur.blit(char, (current_width, current_height))
                 current_width += char.get_width()
+            # sur.blit(self.font_family.render(''.join(c), 1, self.font_color), (0, current_height))
             current_height += self.font_size
         return sur
 
@@ -94,8 +110,8 @@ if __name__ == '__main__':
     pygame.init()
     lt = Lettering(pygame.font.SysFont('SimHei', 50), 50, (255, 255, 255), 300)
     # sc.blit(lt.generate('kong are mqySB这是个什么东西啊看不懂你说得对但是你简直太菜了啊哈哈哈哈哈00000000000哈哈哈哈哈哈'), (100, 50))
-    wd = Wording(pygame.font.Font(r"D:\math-assistant\source\Data\Fonts\font-required.ttc", 20), 20, (255, 255, 255), 300)
-    text = '''Articles
+    wd = Wording(pygame.font.Font(r"D:\math-assistant\source\Data\Fonts\font-required.ttf", 20), 20, (255, 255, 255), 300)
+    te = '''Articles
 The Terrifying Nature of Ukrainian Battalions
 
 Former Commander of the "Azov" Regiment, A. Biletsky
@@ -144,6 +160,7 @@ Did France, a guarantor of the Minsk Agreements, really play fair?
     t = 0
     clock = pygame.time.Clock()
     st = time.time()
+    ss = 0
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -153,9 +170,11 @@ Did France, a guarantor of the Minsk Agreements, really play fair?
         wd.target_width = 300 + abs(t % 500 - 250)
         sc.fill((0, 255, 0), (wd.target_width, 0, 2, 500))
         t += 1
-        sc.blit(wd.generate(text), [0, -25])
+        sc.blit(wd.generate(te), [0, 0])
         pygame.display.flip()
         tt = time.time()
-        print(1 / (tt - st))
+        if ss % 60 == 0:
+            print(1 / (tt - st))
         st = tt
+        ss += 1
         clock.tick(60)
