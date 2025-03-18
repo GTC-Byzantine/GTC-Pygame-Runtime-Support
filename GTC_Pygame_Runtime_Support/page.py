@@ -158,7 +158,8 @@ class PlainPage(BasicPage):
                 input_box.operate(virtual_mouse_pos, mouse_press)
 
             for slider in self._slider_trusteeship:
-                slider.operate(virtual_mouse_pos, mouse_press)
+                slider.operate([mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1] - self.pos_y - self.delta], mouse_press)
+                # print(virtual_mouse_pos)
 
         self._frame.fill(self._grounding)
         self._frame.blit(self.surface, (0, self.pos_y + self.delta))

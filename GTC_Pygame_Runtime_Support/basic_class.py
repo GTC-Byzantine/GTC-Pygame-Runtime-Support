@@ -15,7 +15,23 @@ from GTC_Pygame_Runtime_Support.error import UnexpectedParameter, error0x02
 pygame.display.init()
 
 
-class BasicButton(object):
+class Module(object):
+    pass
+
+
+class Container(object):
+    pass
+
+
+class Controller(object):
+    pass
+
+
+class Function(object):
+    pass
+
+
+class BasicButton(Module):
     state = False
 
     def __init__(self):
@@ -37,7 +53,7 @@ class BasicButton(object):
         self.do_cancel = True
 
 
-class BasicSlider(object):
+class BasicSlider(Module):
     def __init__(self, size: Coordinate, pos: Coordinate, screen: pygame.Surface):
         self._size = size
         self._pos = pos
@@ -65,7 +81,7 @@ class BasicSlider(object):
         self._pos = pos
 
 
-class BasicChecker(object):
+class BasicChecker(Controller):
     def __init__(self, check_range, default_state=False, do_reverse=False):
         """
         :param check_range:             检查的范围（横纵长宽）
@@ -96,7 +112,7 @@ class BasicChecker(object):
         self.range[1] = pos[1]
 
 
-class BasicSurface:
+class BasicSurface(Container, Module):
     def __init__(self, size, pos, screen, border_radius=0):
         self._size = size
         self._pos = pos
@@ -181,7 +197,7 @@ class BasicSurface:
                 checker.add_pos(pos)
 
 
-class BasicPage(object):
+class BasicPage(Container, Module):
     def __init__(self):
         self._button_trusteeship: List[BasicButton] = []
         self._surface_trusteeship: List[BasicSurface] = []
@@ -248,7 +264,7 @@ class BasicPage(object):
         pass
 
 
-class BasicInputBox:
+class BasicInputBox(Container):
     def __init__(self, size, pos, surface, default_text='', remind_text='', background_color=(255, 255, 255), border_color=((0, 0, 0), (0, 112, 255)),
                  font_color=(0, 0, 0), font_type='SimHei', font_size=20, remind_text_color=(160, 160, 160), border_width=2, border_radius=1, fps=60,
                  cursor_color=(0, 0, 0), select_area_color=((51, 103, 209), (200, 200, 200)), do_color_reverse=True):
@@ -302,7 +318,7 @@ class BasicInputBox:
         self.pos = pos
 
 
-class BasicPopup:
+class BasicPopup(Container):
     def __init__(self, size: Coordinate, pos: Coordinate, screen: pygame.Surface):
         """
         :param size:                    弹出框大小
@@ -334,7 +350,7 @@ class BasicPopup:
         pass
 
 
-class BasicFileDropArea(object):
+class BasicFileDropArea(Module):
     def __init__(self, size: Coordinate, pos: Coordinate, screen: pygame.Surface):
         self.size = size
         self.pos = pos
@@ -351,14 +367,13 @@ class BasicFileDropArea(object):
     def clear_state(self):
         self.dropped = False
 
-class BasicTypography:
+class BasicTypography(Function):
     def __init__(self, font_family: pygame.font.Font, font_size: int, font_color: ColorValue, target_width: int):
         self.font_family = font_family
         self.font_size = font_size
         self.font_color = font_color
         self.target_width = target_width
+        self.is_punctuation = lambda x : unicodedata.category(x).startswith('P')
 
-    def is_punctuation(self, char):
-        return unicodedata.category(char).startswith("P")
     def generate(self, text):
         pass

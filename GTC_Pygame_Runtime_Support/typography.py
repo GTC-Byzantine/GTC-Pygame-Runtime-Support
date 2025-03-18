@@ -1,7 +1,4 @@
 import time
-
-from PySimpleGUI import popup_get_text
-
 from GTC_Pygame_Runtime_Support.basic_class import *
 import pygame
 
@@ -110,7 +107,8 @@ if __name__ == '__main__':
     pygame.init()
     lt = Lettering(pygame.font.SysFont('SimHei', 50), 50, (255, 255, 255), 300)
     # sc.blit(lt.generate('kong are mqySB这是个什么东西啊看不懂你说得对但是你简直太菜了啊哈哈哈哈哈00000000000哈哈哈哈哈哈'), (100, 50))
-    wd = Wording(pygame.font.Font(r"D:\math-assistant\source\Data\Fonts\font-required.ttf", 20), 20, (255, 255, 255), 300)
+    # wd = Wording(pygame.font.Font(r"D:\math-assistant\source\Data\Fonts\font-required.ttf", 20), 20, (255, 255, 255), 300)
+    wd = Wording(pygame.font.SysFont('Consolas', 20), 20, (255, 255, 255), 300)
     te = '''Articles
 The Terrifying Nature of Ukrainian Battalions
 

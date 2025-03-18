@@ -61,6 +61,7 @@ class FeedbackButton(BasicButton):
         self.lock = False
         self.last_clicked = False
         self.on_click = False
+        self.last_in_area = False
 
     def in_area(self, mouse_pos):
         if self.pos[0] <= mouse_pos[0] <= self.size[0] + self.pos[0] and self.pos[1] <= mouse_pos[1] <= self.size[1] + self.pos[1]:
@@ -79,10 +80,12 @@ class FeedbackButton(BasicButton):
         if self.in_area(mouse_pos):
             self.iter += self.speed
             self.iter = min(self.iter, 12)
+            pygame.mouse.set_cursor(pygame.cursors.Cursor(pygame.SYSTEM_CURSOR_HAND))
             if mouse_press[0] and not self.lock:
                 if not self.last_clicked:
                     self.do_cancel = False
                     self.last_clicked = True
+
                 self.color_iter += 1
                 self.color_iter = min(4, self.color_iter)
                 self.state = True
@@ -111,6 +114,8 @@ class FeedbackButton(BasicButton):
         if not self.state:
             self.last_clicked = False
         self.temp_color = list(self.color[2][0])
+        if self.last_in_area and not self.in_area(mouse_pos):
+            pygame.mouse.set_cursor(pygame.cursors.Cursor(pygame.SYSTEM_CURSOR_ARROW))
 
         for item in range(len(self.temp_color)):
             self.temp_color[item] -= self.color_iter * self.color_delta[item]
@@ -122,6 +127,7 @@ class FeedbackButton(BasicButton):
                          border_radius=min(self.size) // 4)
         pygame.draw.rect(self.frame, self.color[1], [0, 0, self.size[0], self.size[1]],
                          border_radius=min(self.size) // 4, width=4)
+        self.last_in_area = self.in_area(mouse_pos)
 
         self.frame.blit(self.text, self.font_rect)
         self.surface.blit(self.frame, self.pos)
