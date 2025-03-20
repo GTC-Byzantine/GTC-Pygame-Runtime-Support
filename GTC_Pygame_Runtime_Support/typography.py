@@ -77,7 +77,8 @@ class Wording(BasicTypography):
                 chars.append([])
                 current_width = 0
                 continue
-            prerender = self.font_family.render(char, 1, self.font_color)
+            prerender = self.get_render(char)
+            # prerender = self.font_family.render(char, 1, self.font_color)
             if prerender.get_width() + current_width <= self.target_width:
                 column[-1].append(prerender)
                 chars[-1].append(char)
@@ -108,8 +109,31 @@ if __name__ == '__main__':
     lt = Lettering(pygame.font.SysFont('SimHei', 50), 50, (255, 255, 255), 300)
     # sc.blit(lt.generate('kong are mqySB这是个什么东西啊看不懂你说得对但是你简直太菜了啊哈哈哈哈哈00000000000哈哈哈哈哈哈'), (100, 50))
     # wd = Wording(pygame.font.Font(r"D:\math-assistant\source\Data\Fonts\font-required.ttf", 20), 20, (255, 255, 255), 300)
-    wd = Wording(pygame.font.SysFont('Consolas', 20), 20, (255, 255, 255), 300)
-    te = '''Articles
+    wd = Wording(pygame.font.SysFont('SimHei', 20), 20, (255, 255, 255), 300)
+    te = '''dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia dia dia dia dia dia ヂャヂャヂャヂャdia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia,,,,,,, dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia dia dia dihjdhhh jjxhhdhhjhxh jhfsdhfsdg hfgdfgdfdjgf hhddgfdhhfa dia dia dia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia diaぢあぢあぢあぢあづあぢ亜ぢ亜ぢ亜ヂアヂアヂアヂア dia dia 
+dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia dia dia dia diaрвоооырво　гшоуу8ззв　щфоорвргнч　خخقلااتنشاعغليßßßß´ßß　ßßßｋｈｓ　ヴゅじぇががががががｇいいいいいいいああああああであｖｗっじっぴしうｄげんりっぽうｈでぃいｄ་ßßß´ßü+üüüü+ん dia dia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia 
+dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia dia 
+
+    '''
+    tte = '''Articles
+    مقالة
 The Terrifying Nature of Ukrainian Battalions
 
 Former Commander of the "Azov" Regiment, A. Biletsky
@@ -172,7 +196,7 @@ Did France, a guarantor of the Minsk Agreements, really play fair?
         pygame.display.flip()
         tt = time.time()
         if ss % 60 == 0:
-            print(1 / (tt - st))
-        st = tt
+            print(1 / ((tt - st) / 60))
+            st = tt
         ss += 1
-        clock.tick(60)
+        # clock.tick(60)
