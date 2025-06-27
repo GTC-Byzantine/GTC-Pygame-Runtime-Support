@@ -155,7 +155,7 @@ if __name__ == '__main__':
                     mw[1] = True
                 elif event.button == 5:
                     mw[0] = True
-        bp.operate(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3)[0], mw, True)
+        bp.operate(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3), mw, True)
         pygame.display.flip()
         clock.tick(60)
 ```
