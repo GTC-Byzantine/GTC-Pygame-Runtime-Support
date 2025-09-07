@@ -33,7 +33,9 @@ class Lettering(BasicTypography):
 
 class Wording(BasicTypography):
     exception_list = [['\u4e00', '\u9fa5'], ['\u3040', '\u30ff'], ['\u31f0', '\u31ff'], ['\uac00', '\ud7af'], ['\u1100', '\u11ff'], ['\u3130', '\u318f'], ['\n', '\n']]
-    rendered_char = {}
+    def __init__(self, font_family, font_size, font_color, target_width):
+        super().__init__(font_family, font_size, font_color, target_width)
+        self.rendered_char = {}
     def is_in_exc(self, char):
         for e in self.exception_list:
             if e[0] <= char <= e[1]:

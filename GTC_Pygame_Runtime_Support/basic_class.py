@@ -1,9 +1,7 @@
-# 感谢 zhy 同学，对本项目提供大力支持，并且是本项目的第一个正式使用者（被迫受虐者）
-# 感谢 wxy 同学，对我一直以来的情感支持
-# 感谢 kfy 同学，以各种刁钻的角度测试这个运行库
 import os
 from typing import List, Tuple
 
+import GTC_Pygame_Runtime_Support
 import unicodedata
 
 from GTC_Pygame_Runtime_Support.supported_types import *
@@ -16,11 +14,20 @@ pygame.display.init()
 
 
 class Module(object):
-    pass
+    is_base_module = True
+    absolute_pos = [0, 0]
+    pos = [0, 0]
+    size = [0, 0]
+    in_active = False
+    last_absolute_pos = []
 
+    def in_area(self, mouse_pos: Coordinate):
+        if self.pos[0] <= mouse_pos[0] <= self.size[0] + self.pos[0] and self.pos[1] <= mouse_pos[1] <= self.size[1] + self.pos[1]:
+            return True
+        return False
 
-class Container(object):
-    pass
+    def change_pos(self, pos):
+        self.pos = pos
 
 
 class Controller(object):
@@ -32,11 +39,12 @@ class Function(object):
 
 
 class BasicButton(Module):
-    state = False
 
-    def __init__(self):
+    def __init__(self, pos):
+        self.state = False
         self.do_cancel = False
         self.cp = []
+        self.absolute_pos = pos
 
     def operate(self, mouse_pos: MousePosType, mouse_press: MousePressType):
         """
@@ -55,8 +63,9 @@ class BasicButton(Module):
 
 class BasicSlider(Module):
     def __init__(self, size: Coordinate, pos: Coordinate, screen: pygame.Surface):
-        self._size = size
-        self._pos = pos
+        self.size = size
+        self.pos = pos
+        self.absolute_pos = pos
         self._screen = screen
         self.surface = pygame.Surface(size).convert_alpha()
         self.surface.fill((0, 0, 0, 0))
@@ -65,20 +74,45 @@ class BasicSlider(Module):
         self.sliding = False
         self.delta = 0
         self.background = None
+        self.absolute_pos = pos
 
     def set_as_background(self):
         self.background = self.surface.copy()
-
-    def in_area(self, mouse_pos):
-        if self._pos[0] <= mouse_pos[0] <= self._size[0] + self._pos[0] and self._pos[1] <= mouse_pos[1] <= self._size[1] + self._pos[1]:
-            return True
-        return False
 
     def operate(self, mouse_pos, mouse_press):
         pass
 
     def change_pos(self, pos: Tuple[int, int]):
-        self._pos = pos
+        self.pos = pos
+
+
+class BasicAdjustBox(Module):
+    def __init__(self, size, pos, screen):
+        self.size = size
+        self.absolute_pos = pos
+        self.pos = pos
+        self._screen = screen
+
+
+class BasicDropDown(Module):
+    def __init__(self, size: Coordinate, pos: Coordinate, screen: pygame.Surface):
+        self.size = size
+        self.pos = pos
+        self._screen = screen
+        self.absolute_pos = pos
+        self.surface = pygame.Surface(size).convert_alpha()
+        self.surface.fill((0, 0, 0, 0))
+        self._lock = False
+        self.state = 'up'
+        self._pre_clicked = False
+        self.items = []
+        self.last_state = 'up'
+
+    def operate(self, mouse_pos, mouse_press):
+        pass
+
+    def add_item(self, item: str):
+        self.items.append(item)
 
 
 class BasicChecker(Controller):
@@ -112,10 +146,51 @@ class BasicChecker(Controller):
         self.range[1] = pos[1]
 
 
+class Container:
+    def __init__(self):
+        self.is_base_module = True
+        self.absolute_pos = [0, 0]
+        self.do_element_show = []
+        self._button_trusteeship = []
+        self._surface_trusteeship = []
+        self._page_trusteeship = []
+        self._slider_trusteeship = []
+        self.module_trusteeship = []
+        self.pos = [0, 0]
+
+    def add_button_trusteeship(self, button: BasicButton):
+        # if not isinstance(button, BasicButton):
+        #     raise UnexpectedParameter(error0x02.format(BasicButton.__name__))
+        self._button_trusteeship.append(button)
+        self.module_trusteeship.append(button)
+        self.do_element_show.append(False)
+
+    def show_button_trusteeship(self):
+        return self._button_trusteeship
+
+    def add_slider_trusteeship(self, item):
+        self._slider_trusteeship.append(item)
+        self.module_trusteeship.append(item)
+        self.do_element_show.append(False)
+
+    def add_module_trusteeship(self, item: Module):
+        self.module_trusteeship.append(item)
+        item.is_base_module = False
+        self.do_element_show.append(False)
+        # print(self.do_element_show, len(self.module_trusteeship))
+
+    def show_slider_trusteeship(self):
+        return self._slider_trusteeship
+
+
 class BasicSurface(Container, Module):
     def __init__(self, size, pos, screen, border_radius=0):
+        super().__init__()
         self._size = size
+        self.size = size
         self._pos = pos
+        self.pos = pos
+        self.absolute_pos = list(pos)
         self.surface: SurfaceType = pygame.Surface(size).convert_alpha()
         self._screen: SurfaceType = screen
         self._checkers = {}
@@ -128,14 +203,8 @@ class BasicSurface(Container, Module):
     def set_as_background(self):
         self._background = self.surface.copy()
 
-    def add_button_trusteeship(self, button: BasicButton):
-        if not isinstance(button, BasicButton):
-            raise UnexpectedParameter(error0x02.format(BasicButton.__name__))
-        self._button_trusteeship.append(button)
-        self.do_element_show.append(False)
-
-    def show_button_trusteeship(self):
-        return self._button_trusteeship
+    def change_pos(self, pos):
+        self._pos = pos
 
     def operate_button(self, mouse_pos, mouse_press, do_cancel):
         for button in self._button_trusteeship:
@@ -144,13 +213,37 @@ class BasicSurface(Container, Module):
                 if do_cancel:
                     button.cancel()
 
+    def operate_module(self, mouse_pos, mouse_press, do_cancel):
+        i = len(self.module_trusteeship) - 1
+        for module in self.module_trusteeship[::-1]:
+            module.absolute_pos = [self.absolute_pos[0] + module.pos[0], self.absolute_pos[1] + module.pos[1]]
+            # print(self.do_element_show, self.module_trusteeship.index(module))
+            if self.do_element_show[self.module_trusteeship.index(module)]:
+                # module.absolute_pos = [self.absolute_pos[0] + module.pos[0], self.absolute_pos[1] + module.pos[1]]
+                module.operate(mouse_pos, mouse_press)
+                if isinstance(module, BasicButton):
+                    if do_cancel:
+                        module.cancel()
+                elif isinstance(module, BasicSurface):
+                    module.run_check(mouse_pos, mouse_press)
+            i -= 1
+
     def operate(self, mouse_pos, mouse_press, do_cancel=False):
+        self.in_active = False
+        if self.last_absolute_pos != self.absolute_pos and self.is_base_module:
+            self.in_active = True
+            self.last_absolute_pos = self.absolute_pos
+        if self.is_base_module:
+            self.absolute_pos = self.pos
         if self._background is not None:
             self.surface.blit(self._background, (0, 0))
         else:
             pygame.draw.rect(self.surface, (), (0, 0, *self._size), border_radius=self.border_radius)
-        self.operate_button([mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1]], mouse_press, do_cancel)
-        self._screen.blit(self.surface, self._pos)
+        # self.operate_button([mouse_pos[0] - self._pos[0], mouse_pos[1] - self._pos[1]], mouse_press, do_cancel)
+        self.operate_module([mouse_pos[0] - self.pos[0], mouse_pos[1] - self._pos[1]], mouse_press, do_cancel)
+        self._screen.blit(self.surface, self.pos)
+        if self.in_active:
+            GTC_Pygame_Runtime_Support.refresh_stuck[(*self.absolute_pos, *self.size)] = 2
 
     def run_check(self, mouse_pos, mouse_click) -> bool:
         """
@@ -189,16 +282,30 @@ class BasicSurface(Container, Module):
         self._checkers[group_name]['checkers'].append((checker, is_relative))
 
     def add_pos(self, pos):
-        self._pos[0] += pos[0]
-        self._pos[1] += pos[1]
+        self.pos[0] += pos[0]
+        self.pos[1] += pos[1]
         for group in self._checkers:
             for checker in self._checkers[group]['checkers']:
                 checker: BasicChecker
                 checker.add_pos(pos)
 
 
+def container_add_surface_trusteeship(self: Container, surface: BasicSurface):
+    # if not isinstance(surface, BasicSurface):
+    #     raise UnexpectedParameter(error0x02.format(BasicSurface.__name__))
+    self.module_trusteeship.append(surface)
+    surface.is_base_module = False
+    self._surface_trusteeship.append(surface)
+
+
+Container.add_surface_trusteeship = container_add_surface_trusteeship
+Container.show_surface_trusteeship = lambda self: self._surface_trusteeship
+
+
 class BasicPage(Container, Module):
-    def __init__(self):
+    def __init__(self, pos):
+        super().__init__()
+        self.absolute_pos = pos
         self._button_trusteeship: List[BasicButton] = []
         self._surface_trusteeship: List[BasicSurface] = []
         self._page_trusteeship: List[BasicPage] = []
@@ -220,33 +327,21 @@ class BasicPage(Container, Module):
     def set_as_background(self):
         pass
 
-    def add_button_trusteeship(self, button: BasicButton):
-        if not isinstance(button, BasicButton):
-            raise UnexpectedParameter(error0x02.format(BasicButton.__name__))
-        self._button_trusteeship.append(button)
+    # def add_surface_trusteeship(self, surface: BasicSurface):
+    #     if not isinstance(surface, BasicSurface):
+    #         raise UnexpectedParameter(error0x02.format(BasicSurface.__name__))
+    #     self._surface_trusteeship.append(surface)
+    #
+    # def show_surface_trusteeship(self):
+    #     return self._surface_trusteeship
 
-    def show_button_trusteeship(self):
-        return self._button_trusteeship
-
-    def add_surface_trusteeship(self, surface: BasicSurface):
-        if not isinstance(surface, BasicSurface):
-            raise UnexpectedParameter(error0x02.format(BasicSurface.__name__))
-        self._surface_trusteeship.append(surface)
-
-    def show_surface_trusteeship(self):
-        return self._surface_trusteeship
-
-    def add_page_trusteeship(self, page):
-        """
-        :type page:                     BasicPage
-        :return:
-        """
-        if not isinstance(page, BasicPage):
-            raise UnexpectedParameter(error0x02.format(BasicPage.__name__))
-        self._page_trusteeship.append(page)
-
-    def show_page_trusteeship(self):
-        return self._page_trusteeship
+    # def add_page_trusteeship(self, page):
+    #     if not isinstance(page, BasicPage):
+    #         raise UnexpectedParameter(error0x02.format(BasicPage.__name__))
+    #     self._page_trusteeship.append(page)
+    #
+    # def show_page_trusteeship(self):
+    #     return self._page_trusteeship
 
     def add_input_trusteeship(self, input_box):
         self._input_trusteeship.append(input_box)
@@ -254,22 +349,29 @@ class BasicPage(Container, Module):
     def show_input_trusteeship(self):
         return self._input_trusteeship
 
-    def add_slider_trusteeship(self, item):
-        self._slider_trusteeship.append(item)
-
-    def show_slider_trusteeship(self):
-        return self._slider_trusteeship
-
     def operate(self, mouse_pos, mouse_press, mouse_wheel_status=None, operate_addons=False):
         pass
 
 
-class BasicInputBox(Container):
+def container_add_page_trusteeship(self: Container, page: BasicPage):
+    # if not isinstance(page, BasicPage):
+    #     raise UnexpectedParameter(error0x02.format(BasicPage.__name__))
+    self.module_trusteeship.append(page)
+    page.is_base_module = False
+    self._page_trusteeship.append(page)
+
+
+Container.add_page_trusteeship = container_add_page_trusteeship
+Container.show_page_trusteeship = lambda self: self._page_trusteeship
+
+
+class BasicInputBox(Module):
     def __init__(self, size, pos, surface, default_text='', remind_text='', background_color=(255, 255, 255), border_color=((0, 0, 0), (0, 112, 255)),
                  font_color=(0, 0, 0), font_type='SimHei', font_size=20, remind_text_color=(160, 160, 160), border_width=2, border_radius=1, fps=60,
                  cursor_color=(0, 0, 0), select_area_color=((51, 103, 209), (200, 200, 200)), do_color_reverse=True):
         self.size = size
         self.pos = pos
+        self.absolute_pos = pos
         self.rect = pygame.Rect(*pos, *size)
         self.screen = surface
         self.surface = pygame.Surface(size).convert_alpha()
@@ -328,6 +430,7 @@ class BasicPopup(Container):
         self.clock = pygame.time.Clock()
         self.size = size
         self.pos = pos
+        self.absolute_pos = pos
         self.screen = screen
         self.surface = pygame.Surface(size).convert_alpha()
         self.background = None
@@ -354,6 +457,7 @@ class BasicFileDropArea(Module):
     def __init__(self, size: Coordinate, pos: Coordinate, screen: pygame.Surface):
         self.size = size
         self.pos = pos
+        self.absolute_pos = pos
         self.screen = screen
         self.file_path = []
         self.dropped = False
@@ -367,13 +471,14 @@ class BasicFileDropArea(Module):
     def clear_state(self):
         self.dropped = False
 
+
 class BasicTypography(Function):
     def __init__(self, font_family: pygame.font.Font, font_size: int, font_color: ColorValue, target_width: int):
         self.font_family = font_family
         self.font_size = font_size
         self.font_color = font_color
         self.target_width = target_width
-        self.is_punctuation = lambda x : unicodedata.category(x).startswith('P')
+        self.is_punctuation = lambda x: unicodedata.category(x).startswith('P')
 
     def generate(self, text):
         pass

@@ -1,3 +1,4 @@
+import GTC_Pygame_Runtime_Support
 import pygame
 from GTC_Pygame_Runtime_Support.basic_class import BasicSlider
 from GTC_Pygame_Runtime_Support.error import UnexpectedParameter
@@ -30,7 +31,7 @@ class HorizontalSlider(BasicSlider):
                 elif self._pre_clicked and mouse_press[self._drag_index]:
                     if mouse_pos != self._start_pos:
                         self.sliding = True
-                    self.slide_pos = mouse_pos[0] - self._pos[0] - self._size[1] // 2
+                    self.slide_pos = mouse_pos[0] - self.pos[0] - self.size[1] // 2
                     self.slide_pos = max(0, self.slide_pos)
                     self.slide_pos = min(self.slide_range[1], self.slide_pos)
                 elif self._pre_clicked and not mouse_press[self._drag_index]:
@@ -43,13 +44,15 @@ class HorizontalSlider(BasicSlider):
 
         self._pre_clicked = mouse_press[self._drag_index]
         self.surface.fill((0, 0, 0, 0))
-        pygame.draw.rect(self.surface, self.background_color, (0, 0, *self._size), border_radius=self._size[1])
+        pygame.draw.rect(self.surface, self.background_color, (0, 0, *self.size), border_radius=self.size[1])
         if self.background is not None:
             self.surface.blit(self.background, (0, 0))
         self.percent = self.slide_pos / (self.slide_range[1] - self.slide_range[0])
-        self._screen.blit(self.surface, self._pos)
-        pygame.draw.circle(self._screen, self.movable_color, (self._size[1] // 2 + self.slide_pos + self._pos[0], self._size[1] // 2 + self._pos[1]),
+        self._screen.blit(self.surface, self.pos)
+        pygame.draw.circle(self._screen, self.movable_color, (self.size[1] // 2 + self.slide_pos + self.pos[0], self.size[1] // 2 + self.pos[1]),
                            self.movable_radium)
+        if self.sliding:
+            GTC_Pygame_Runtime_Support.refresh_stuck[(*self.pos, *self.size)] = 1
 
 
 class VerticalSlider(BasicSlider):
@@ -79,7 +82,7 @@ class VerticalSlider(BasicSlider):
                 elif self._pre_clicked and mouse_press[self._drag_index]:
                     if mouse_pos != self._start_pos:
                         self.sliding = True
-                    self.slide_pos = mouse_pos[1] - self._pos[1] - self._size[0] // 2
+                    self.slide_pos = mouse_pos[1] - self.pos[1] - self.size[0] // 2
                     self.slide_pos = max(0, self.slide_pos)
                     self.slide_pos = min(self.slide_range[1], self.slide_pos)
                 elif self._pre_clicked and not mouse_press[self._drag_index]:
@@ -92,12 +95,12 @@ class VerticalSlider(BasicSlider):
 
         self._pre_clicked = mouse_press[self._drag_index]
         self.surface.fill((0, 0, 0, 0))
-        pygame.draw.rect(self.surface, self.background_color, (0, 0, *self._size), border_radius=self._size[1])
+        pygame.draw.rect(self.surface, self.background_color, (0, 0, *self.size), border_radius=self.size[1])
         if self.background is not None:
             self.surface.blit(self.background, (0, 0))
         self.percent = self.slide_pos / (self.slide_range[1] - self.slide_range[0])
-        self._screen.blit(self.surface, self._pos)
-        pygame.draw.circle(self._screen, self.movable_color, (self._size[0] // 2 + self._pos[0], self._size[0] // 2 + self.slide_pos + self._pos[1]),
+        self._screen.blit(self.surface, self.pos)
+        pygame.draw.circle(self._screen, self.movable_color, (self.size[0] // 2 + self.pos[0], self.size[0] // 2 + self.slide_pos + self.pos[1]),
                            self.movable_radium)
 
 
@@ -120,9 +123,9 @@ class HorizontalSlideBar(BasicSlider):
 
     def set_movable_width(self, new_width):
         self.movable_width = new_width
-        self.slide_range = [new_width // 2, self._size[0] - 2 - new_width // 2 - self._size[1]]
+        self.slide_range = [new_width // 2, self.size[0] - 2 - new_width // 2 - self.size[1]]
         if self.slide_range[1] < 0:
-            raise UnexpectedParameter("size[0] 应大于等于 {}, 实际为 {}".format(new_width // 2 + 2 + self._size[1], self._size[0]))
+            raise UnexpectedParameter("size[0] 应大于等于 {}, 实际为 {}".format(new_width // 2 + 2 + self.size[1], self.size[0]))
 
     def operate(self, mouse_pos, mouse_press):
         if self.in_area(mouse_pos) or self.sliding:
@@ -134,8 +137,8 @@ class HorizontalSlideBar(BasicSlider):
                     self._start_pos = mouse_pos
                     self.sliding = False
                     self._lock = False
-                    if (self.slide_pos - self.movable_width // 2 <= mouse_pos[0] - self._pos[0]
-                            <= self.slide_pos + self.movable_width // 2 + self._size[1]):
+                    if (self.slide_pos - self.movable_width // 2 <= mouse_pos[0] - self.pos[0]
+                            <= self.slide_pos + self.movable_width // 2 + self.size[1]):
                         self._drag_pattern = 1
                     else:
                         self._drag_pattern = 2
@@ -143,7 +146,7 @@ class HorizontalSlideBar(BasicSlider):
                     if mouse_pos != self._start_pos:
                         self.sliding = True
                     if self._drag_pattern == 2:
-                        self.slide_pos = mouse_pos[0] - self._pos[0] - self._size[1] // 2
+                        self.slide_pos = mouse_pos[0] - self.pos[0] - self.size[1] // 2
                     elif self._drag_pattern == 1:
                         self.delta = mouse_pos[0] - self._start_pos[0]
                         self.delta = max(self.delta, self.slide_range[0] - self.slide_pos)
@@ -164,15 +167,15 @@ class HorizontalSlideBar(BasicSlider):
         self.slide_pos = min(self.slide_range[1], self.slide_pos)
         self._pre_clicked = mouse_press[self._drag_index]
         self.surface.fill((0, 0, 0, 0))
-        pygame.draw.rect(self.surface, self._background_color, (0, 0, *self._size), border_radius=self._size[1] // 2)
+        pygame.draw.rect(self.surface, self._background_color, (0, 0, *self.size), border_radius=self.size[1] // 2)
         if self.background is not None:
             self.surface.blit(self.background, (0, 0))
         self.percent = (self.slide_pos - self.slide_range[0] + self.delta) / (self.slide_range[1] - self.slide_range[0])
-        self._screen.blit(self.surface, self._pos)
+        self._screen.blit(self.surface, self.pos)
         pygame.draw.rect(self._screen, self._movable_color[self.in_area(mouse_pos) or self.sliding],
-                         (self.slide_pos + self._pos[0] + 1 - self.movable_width // 2 + self.delta,
-                          self._pos[1] + 1, self.movable_width + self._size[1],
-                          self._size[1] - 2), border_radius=(self._size[1] - 2) // 2)
+                         (self.slide_pos + self.pos[0] + 1 - self.movable_width // 2 + self.delta,
+                          self.pos[1] + 1, self.movable_width + self.size[1],
+                          self.size[1] - 2), border_radius=(self.size[1] - 2) // 2)
 
 
 class VerticalSlideBar(BasicSlider):
@@ -194,9 +197,9 @@ class VerticalSlideBar(BasicSlider):
 
     def set_movable_width(self, new_width):
         self.movable_width = new_width
-        self.slide_range = [new_width // 2, self._size[1] - 2 - new_width // 2 - self._size[0]]
+        self.slide_range = [new_width // 2, self.size[1] - 2 - new_width // 2 - self.size[0]]
         if self.slide_range[1] < 0:
-            raise UnexpectedParameter("size[1] 应大于等于 {}, 实际为 {}".format(new_width // 2 + 2 + self._size[0], self._size[1]))
+            raise UnexpectedParameter("size[1] 应大于等于 {}, 实际为 {}".format(new_width // 2 + 2 + self.size[0], self.size[1]))
 
     def operate(self, mouse_pos, mouse_press):
         if self.in_area(mouse_pos) or self.sliding:
@@ -208,8 +211,8 @@ class VerticalSlideBar(BasicSlider):
                     self._start_pos = mouse_pos
                     self.sliding = False
                     self._lock = False
-                    if (self.slide_pos - self.movable_width // 2 <= mouse_pos[1] - self._pos[1]
-                            <= self.slide_pos + self.movable_width // 2 + self._size[0]):
+                    if (self.slide_pos - self.movable_width // 2 <= mouse_pos[1] - self.pos[1]
+                            <= self.slide_pos + self.movable_width // 2 + self.size[0]):
                         self._drag_pattern = 1
                     else:
                         self._drag_pattern = 2
@@ -217,7 +220,7 @@ class VerticalSlideBar(BasicSlider):
                     if mouse_pos != self._start_pos:
                         self.sliding = True
                     if self._drag_pattern == 2:
-                        self.slide_pos = mouse_pos[1] - self._pos[1] - self._size[0] // 2
+                        self.slide_pos = mouse_pos[1] - self.pos[1] - self.size[0] // 2
                     elif self._drag_pattern == 1:
                         self.delta = mouse_pos[1] - self._start_pos[1]
                         self.delta = max(self.delta, self.slide_range[0] - self.slide_pos)
@@ -237,15 +240,15 @@ class VerticalSlideBar(BasicSlider):
         self.slide_pos = min(self.slide_range[1], self.slide_pos)
         self._pre_clicked = mouse_press[self._drag_index]
         self.surface.fill((0, 0, 0, 0))
-        pygame.draw.rect(self.surface, self._background_color, (0, 0, *self._size), border_radius=self._size[0] // 2)
+        pygame.draw.rect(self.surface, self._background_color, (0, 0, *self.size), border_radius=self.size[0] // 2)
         if self.background is not None:
             self.surface.blit(self.background, (0, 0))
         self.percent = (self.slide_pos - self.slide_range[0] + self.delta) / (self.slide_range[1] - self.slide_range[0])
-        self._screen.blit(self.surface, self._pos)
+        self._screen.blit(self.surface, self.pos)
         pygame.draw.rect(self._screen, self._movable_color[self.in_area(mouse_pos) or self.sliding],
-                         (self._pos[0] + 1, self.slide_pos + self._pos[1] + 1 - self.movable_width // 2 + self.delta,
-                          self._size[0] - 2,
-                          self.movable_width + self._size[0]), border_radius=(self._size[0] - 2) // 2)
+                         (self.pos[0] + 1, self.slide_pos + self.pos[1] + 1 - self.movable_width // 2 + self.delta,
+                          self.size[0] - 2,
+                          self.movable_width + self.size[0]), border_radius=(self.size[0] - 2) // 2)
 
 
 if __name__ == '__main__':
@@ -263,6 +266,8 @@ if __name__ == '__main__':
             if event.type == pygame.QUIT:
                 running = 0
         sc.fill((0, 0, 0))
+        # print(hs.in_area(pygame.mouse.get_pos()))
+        print(pygame.mouse.get_pos())
         hs.operate(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3))
         vs.operate(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3))
         hsb.operate(pygame.mouse.get_pos(), pygame.mouse.get_pressed(3))

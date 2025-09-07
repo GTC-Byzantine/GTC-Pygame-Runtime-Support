@@ -1,4 +1,5 @@
 # from typing import List, Tuple
+import GTC_Pygame_Runtime_Support
 from GTC_Pygame_Runtime_Support.basic_class import BasicInputBox
 import pygame
 import os
@@ -10,7 +11,7 @@ pygame.init()
 class InputBox(BasicInputBox):
     def __init__(self, size, pos, surface, default_text='', remind_text='', background_color=(255, 255, 255), border_color=((0, 0, 0), (0, 112, 255)),
                  font_color=(0, 0, 0), font_type='SimHei', font_size=20, remind_text_color=(160, 160, 160), border_width=2, border_radius=1, fps=60,
-                 cursor_color=(0, 0, 0), select_area_color=((51, 103, 209), (200, 200, 200)), do_color_reverse=True):
+                 cursor_color=(0, 0, 0), select_area_color=((51, 103, 209), (200, 200, 200)), do_color_reverse=True, delta_y=-3):
         """
         :param size:                        输入框大小
         :param pos:                         输入框位置
@@ -32,7 +33,7 @@ class InputBox(BasicInputBox):
         """
         super().__init__(size, pos, surface, default_text, remind_text, background_color, border_color, font_color, font_type, font_size,
                          remind_text_color, border_width, border_radius, fps, cursor_color, select_area_color, do_color_reverse)
-        self.text_surface = pygame.Surface((size[0] * 100, size[1])).convert_alpha()
+        self.text_surface = pygame.Surface((size[0] * 100, size[1] * 2)).convert_alpha()
         self.direct_status = [False, False]
         self.direct_timing = [0, 0]
         self.operating = False
@@ -54,6 +55,7 @@ class InputBox(BasicInputBox):
         self.do_paste = False
         self.do_copy = False
         self.do_cut = False
+        self.extra_y = delta_y
         self.character_surface = []
         self.character_surface_reverse = []
         for c in default_text[::-1]:
@@ -321,17 +323,22 @@ class InputBox(BasicInputBox):
         if self.cursor_position_px > -self.text_surface_pos + self.size[0] - 10:
             self.text_surface_pos = -(self.cursor_position_px - self.size[0] + 10)
         if self.operating and (self.cursor_timing % (self.fps // 1) <= (self.fps // 2)):
-            pygame.draw.rect(self.text_surface, self.cursor_color, (self.cursor_position_px, (self.size[1] - self.font_size) // 2 + 3, 2, self.font_size))
+            pygame.draw.rect(self.text_surface, self.cursor_color, (self.cursor_position_px, (self.size[1] - self.font_size) // 2 - self.extra_y, 2, self.font_size))
 
-        self.surface.blit(self.text_surface, (self.text_surface_pos + 4, -3))
+        self.surface.blit(self.text_surface, (self.text_surface_pos + 4, self.extra_y))
         self.last_clicked = mouse_press[0]
 
         if self.operating:
             item = 1
+            self.in_active = True
         else:
             item = 0
         pygame.draw.rect(self.surface, self.border_color[item], (0, 0, *self.size), border_radius=self.border_radius, width=self.border_width)
         self.screen.blit(self.surface, self.pos)
+
+        if self.in_active:
+            GTC_Pygame_Runtime_Support.refresh_stuck[(*self.pos, *self.size)] = 1
+            self.in_active = False
 
 
 if __name__ == '__main__':

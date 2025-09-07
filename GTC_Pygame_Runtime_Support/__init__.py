@@ -11,4 +11,7 @@ import GTC_Pygame_Runtime_Support.return_type
 import GTC_Pygame_Runtime_Support.slider
 import GTC_Pygame_Runtime_Support.file_drag_area
 import GTC_Pygame_Runtime_Support.typography
+import GTC_Pygame_Runtime_Support.drop_down
+import GTC_Pygame_Runtime_Support.adjust_box
+refresh_stuck = {} # {刷新范围: 刷新帧数}
 # import GTC_Pygame_Runtime_Support.types

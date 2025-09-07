@@ -4,39 +4,18 @@ from typing import List, Tuple
 import pygame
 from GTC_Pygame_Runtime_Support.basic_class import *
 from GTC_Pygame_Runtime_Support.supported_types import *
+import GTC_Pygame_Runtime_Support
 
 pygame.font.init()
 pygame.display.init()
 
 
 class FeedbackButton(BasicButton):
-    def __init__(self, size, pos, text, text_size, surface, bg_color=(30, 255, 189), border_color=(255, 255, 255),
-                 change_color=((0, 112, 255), (0, 255, 112)), text_color=(0, 0, 0), speed=2, font_type='SimHei'):
-        """
-        :param size:            按钮大小
-        :type size:             List[int] | (int, int)
-        :param pos:             按钮在目标 Surface 上的位置
-        :type pos:              List[int] | (int, int)
-        :param text:            按钮的显示文本
-        :type text:             str
-        :param text_size:       文本字体大小
-        :type text_size:        int
-        :param surface:         目标 Surface
-        :type surface:          pygame.surface.SurfaceType | pygame.surface.Surface
-        :param bg_color:        按钮背景颜色
-        :type bg_color:         (int, int, int) | List[int]
-        :param border_color:    按钮边框颜色
-        :type border_color:     (int, int, int) | List[int]
-        :param change_color:    按钮点击时的颜色变化
-        :type change_color:     ((int, int, int), (int, int, int))
-        :param text_color:      文字颜色
-        :type text_color:       (int, int, int) | List[int]
-        :param speed:           变化速度
-        :type speed:            int
-        :param font_type:       字体样式（名称或路径）
-        :type font_type:        str
-        """
-        super().__init__()
+    def __init__(self, size: Coordinate, pos: Coordinate, text: str, text_size: int, surface: SurfaceType,
+                 bg_color: ColorValue = (30, 255, 189), border_color: ColorValue = (255, 255, 255),
+                 change_color: Union[List[ColorValue], Tuple[ColorValue, ColorValue],] = ((0, 112, 255), (0, 255, 112)),
+                 text_color: ColorValue = (0, 0, 0), speed: float = 2, font_type: str = 'SimHei'):
+        super().__init__(pos)
         self.size = size
         self.pos = pos
         self.frame = pygame.Surface(size).convert_alpha()
@@ -46,12 +25,13 @@ class FeedbackButton(BasicButton):
             self.text = pygame.font.SysFont(font_type, text_size).render(text, True, text_color)
         self.color = [bg_color, border_color, change_color]
         self.font_rect = self.text.get_rect()
-
         self.font_rect.center = (size[0] // 2, size[1] // 2)
         self.iter = 0
         self.color_iter = 0
         self.speed = speed
-
+        self.font = font_type
+        self.text_size = text_size
+        self.text_color = text_color
         self.color_delta = [(self.color[2][0][0] - self.color[2][1][0]) / 4,
                             (self.color[2][0][1] - self.color[2][1][1]) / 4,
                             (self.color[2][0][2] - self.color[2][1][2]) / 4]
@@ -64,9 +44,19 @@ class FeedbackButton(BasicButton):
         self.last_in_area = False
 
     def in_area(self, mouse_pos):
-        if self.pos[0] <= mouse_pos[0] <= self.size[0] + self.pos[0] and self.pos[1] <= mouse_pos[1] <= self.size[1] + self.pos[1]:
+        if self.pos[0] <= mouse_pos[0] <= self.size[0] + self.pos[0] and self.pos[1] <= mouse_pos[1] <= self.size[1] + \
+                self.pos[1]:
             return True
         return False
+
+    def change_text(self, text):
+        if os.path.exists(self.font):
+            self.text = pygame.font.Font(self.font, self.text_size).render(text, True, self.text_color)
+        else:
+            self.text = pygame.font.SysFont(self.font, self.text_size).render(text, True, self.text_color)
+        self.font_rect = self.text.get_rect()
+        self.font_rect.center = (self.size[0] // 2, self.size[1] // 2)
+        self.in_active = True
 
     def operate(self, mouse_pos, mouse_press):
         """
@@ -77,9 +67,16 @@ class FeedbackButton(BasicButton):
         :return:
         """
         self.frame.fill((0, 0, 0, 0))
+        if self.is_base_module:
+            self.absolute_pos = self.pos
+        if self.last_absolute_pos != self.absolute_pos:
+            self.in_active = True
+            self.last_absolute_pos = self.absolute_pos
         if self.in_area(mouse_pos):
             self.iter += self.speed
             self.iter = min(self.iter, 12)
+            if self.iter < 12:
+                self.in_active = True
             pygame.mouse.set_cursor(pygame.cursors.Cursor(pygame.SYSTEM_CURSOR_HAND))
             if mouse_press[0] and not self.lock:
                 if not self.last_clicked:
@@ -88,11 +85,15 @@ class FeedbackButton(BasicButton):
 
                 self.color_iter += 1
                 self.color_iter = min(4, self.color_iter)
+                if self.color_iter < 4:
+                    self.in_active = True
                 self.state = True
             else:
                 self.color_iter -= 1
                 self.color_iter = max(0, self.color_iter)
                 self.state = False
+                if self.color_iter > 1:
+                    self.in_active = True
             if self.lock and not mouse_press[0]:
                 self.lock = False
         else:
@@ -100,6 +101,8 @@ class FeedbackButton(BasicButton):
             self.iter = max(0, self.iter)
             self.color_iter -= 1
             self.color_iter = max(0, self.color_iter)
+            if self.color_iter > 0 or self.iter > 0:
+                self.in_active = True
             self.state = False
             if mouse_press[0]:
                 self.lock = True
@@ -131,6 +134,9 @@ class FeedbackButton(BasicButton):
 
         self.frame.blit(self.text, self.font_rect)
         self.surface.blit(self.frame, self.pos)
+        if self.in_active:
+            GTC_Pygame_Runtime_Support.refresh_stuck[self.absolute_pos[0] - 14, self.absolute_pos[1] - 14, self.size[0] + 28, self.size[1] + 28] = 4
+            self.in_active = False
 
     def change_pos(self, pos: Tuple[int, int]):
         self.pos = pos
@@ -164,7 +170,7 @@ class DelayButton(BasicButton):
         :param font_type:       字体样式（名称或路径）
         :type font_type:        str
         """
-        super().__init__()
+        super().__init__(pos)
         self.size = size
         self.pos = pos
         self.frame = pygame.Surface(size).convert_alpha()
@@ -263,12 +269,12 @@ class DelayButton(BasicButton):
 class SimpleButtonWithImage(BasicButton):
     def __init__(self, pos: Coordinate, surface: pygame.Surface, size: Coordinate = (200, 200),
                  bg_color: ColorValue = (255, 255, 255),
-                 hovering_color: ColorValue = (249, 249, 249),
-                 clicking_color: ColorValue = (252, 248, 245),
+                 hovering_color: ColorValue = (220, 220, 220),
+                 clicking_color: ColorValue = (235, 220, 220),
                  bg_image: pygame.Surface or None = None,
                  text: Union[Tuple[str, Coordinate, int, ColorValue]] = ('', (0, 0), 1, (0, 0, 0)),
-                 font: str = 'SimHei', border_radius: int=10, border_width: int = 2):
-        super().__init__()
+                 font: str = 'SimHei', border_radius: int = 10, border_width: int = 2):
+        super().__init__(pos)
         self.size = size
         self.bg_color = bg_color
         self.hovering = hovering_color
@@ -283,12 +289,14 @@ class SimpleButtonWithImage(BasicButton):
         self.text_ini = text
         self.text_size = None
         self.text_color = None
+        self.font = font
         self.text_pos = [text[1][0] + pos[0], text[1][1] + pos[1]]
         self.cp = []
         self.last_clicked = False
         self.on_click = False
         self.border_radius = border_radius
         self.border_width = border_width
+        self.last_hover = False
         if text is not None:
             self.text_size = text[2]
             self.text_color = text[3]
@@ -303,6 +311,13 @@ class SimpleButtonWithImage(BasicButton):
             return True
         return False
 
+    def change_text(self, text):
+        if os.path.exists(self.font):
+            self.text = pygame.font.Font(self.font, self.text_size).render(text[0], True, self.text_color)
+        else:
+            self.text = pygame.font.SysFont(self.font, self.text_size).render(text[0], True, self.text_color)
+        self.in_active = True
+
     def operate(self, mouse_pos, mouse_press):
         """
         :param mouse_pos:           鼠标坐标
@@ -311,12 +326,17 @@ class SimpleButtonWithImage(BasicButton):
         :type mouse_press:          List[bool] | Tuple[bool, bool, bool] | Tuple[bool, bool, bool, bool, bool]
         :return:
         """
+        # self.in_active = False
         if self._in_area(mouse_pos):
+            if not self.last_hover:
+                self.last_hover = True
+                self.in_active = True
             if mouse_press[0] and not self.lock:
                 self.state = True
                 if not self.last_clicked:
                     self.do_cancel = False
                     self.last_clicked = True
+                    self.in_active = True
                 pygame.draw.rect(self.surface, self.clicking, [self.pos[0], self.pos[1], self.size[0], self.size[1]],
                                  border_radius=self.border_radius)
             else:
@@ -327,7 +347,11 @@ class SimpleButtonWithImage(BasicButton):
                 self.lock = False
 
         else:
-            pygame.draw.rect(self.surface, self.bg_color, [self.pos[0], self.pos[1], self.size[0], self.size[1]], border_radius=self.border_radius)
+            pygame.draw.rect(self.surface, self.bg_color, [self.pos[0], self.pos[1], self.size[0], self.size[1]],
+                             border_radius=self.border_radius)
+            if self.last_hover:
+                self.last_hover = False
+                self.in_active = True
             if mouse_press[0]:
                 self.lock = True
                 if self.last_clicked:
@@ -336,6 +360,7 @@ class SimpleButtonWithImage(BasicButton):
                 self.lock = False
         if not mouse_press[0] and self.last_clicked and not self.do_cancel:
             self.on_click = True
+            self.in_active = True
         else:
             self.on_click = False
         if not self.state:
@@ -343,10 +368,18 @@ class SimpleButtonWithImage(BasicButton):
         if self.bg_image is not None:
             self.surface.blit(self.bg_image, self.pos)
         if self.border_width:
-            pygame.draw.rect(self.surface, (0, 0, 0), [self.pos[0], self.pos[1], self.size[0], self.size[1]], width=self.border_width, border_radius=self.border_radius)
+            pygame.draw.rect(self.surface, (0, 0, 0), [self.pos[0], self.pos[1], self.size[0], self.size[1]],
+                             width=self.border_width, border_radius=self.border_radius)
 
         if self.text_ini is not None:
             self.surface.blit(self.text, self.text.get_rect(center=self.text_pos))
 
+        if self.in_active:
+            GTC_Pygame_Runtime_Support.refresh_stuck[(*self.pos, *self.size)] = 1
+            self.in_active = False
+
     def change_pos(self, pos: Tuple[int, int]):
         self.pos = pos
+
+
+SimpleButton = SimpleButtonWithImage

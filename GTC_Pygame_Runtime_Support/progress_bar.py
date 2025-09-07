@@ -1,5 +1,7 @@
 import sys
 from typing import Tuple, List
+
+import GTC_Pygame_Runtime_Support
 import pygame
 
 pygame.font.init()
@@ -42,6 +44,7 @@ class ProgressBar:
             pygame.draw.rect(self.surface, self.border, (0, 0, self.width, self.height), width=1)
         pygame.draw.rect(self.surface, self.bar_color, (0, 0, self.progress, self.height))
         self.screen.blit(self.surface, self.pos)
+        GTC_Pygame_Runtime_Support.refresh_stuck[(*self.pos, self.width, self.height)] = 1
 
 
 if __name__ == '__main__':

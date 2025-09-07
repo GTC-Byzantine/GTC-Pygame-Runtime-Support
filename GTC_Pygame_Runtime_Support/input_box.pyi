@@ -18,5 +18,6 @@ class InputBox(BasicInputBox):
                  fps: int=60,
                  cursor_color: ColorValue=(0, 0, 0),
                  select_area_color: List[ColorValue] | Tuple[ColorValue]=((51, 103, 209), (200, 200, 200)),
-                 do_color_reverse: bool=True
+                 do_color_reverse: bool=True,
+                 delta_y: int=-3
                  ): ...

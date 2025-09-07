@@ -1,3 +1,4 @@
+import GTC_Pygame_Runtime_Support
 import pygame
 from GTC_Pygame_Runtime_Support.basic_class import BasicChecker, BasicSurface
 from GTC_Pygame_Runtime_Support.checker import AlwaysTrue
@@ -31,6 +32,7 @@ class CommonSurface(BasicSurface):
                     state = state or check_consequence
             if state:
                 self._checkers[groups]["motion"](*self._checkers[groups]['args'])
+                GTC_Pygame_Runtime_Support.refresh_stuck[(*self.absolute_pos, *self.size)] = 2
 
 
 if __name__ == '__main__':
