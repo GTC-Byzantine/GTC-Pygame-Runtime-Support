@@ -98,7 +98,7 @@ if __name__ == '__main__':
         pygame.draw.line(bp.surface, [0, 0, 0], [0, 10 * i], [300, 10 * i])
     bp.set_as_background()
     bt = gPRS.button.FeedbackButton([40, 40], [20, 20], '114', 10, bp.surface)
-    bp.add_button_trusteeship(bt)
+    bp.add_module_trusteeship(bt)
 
     mw = [False, False]
     while True:
@@ -142,7 +142,7 @@ if __name__ == '__main__':
     for i in range(100):
         pygame.draw.line(inner_p.surface, [0, 0, 255], [0, 9 * i], [300, 9 * i])
     inner_p.set_as_background()
-    bp.add_page_trusteeship(inner_p)
+    bp.add_module_trusteeship(inner_p)
 
     mw = [False, False]
     while True:
@@ -162,6 +162,6 @@ if __name__ == '__main__':
 
 通过以上介绍，您应该能对 PRS 的使用特点有大概的了解。
 
-该页面不仅可以使用滚轮滚动页面，也可以使用鼠标拖动页面，并且在使用`add_button_trusteeship()`函数后，按钮也可以正常使用。
+该页面不仅可以使用滚轮滚动页面，也可以使用鼠标拖动页面，并且在使用`add_module_trusteeship()`函数后，按钮也可以正常使用。
 
 所有功能组件的 Surface 图层均向开发者开放，这使得开发者在不满意原按钮的美术效果时可以自行修改图层，比如上例中向滚动页面绘制直线，使用者可以直接通过`bp.surface`获得页面的 Surface，并通过`bp.set_as_background()`方便地设置其为默认背景。
