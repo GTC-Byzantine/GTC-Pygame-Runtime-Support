@@ -62,12 +62,10 @@ class PlainPage(BasicPage):
         self.pos = pos
 
     def _conflict_check(self, mouse_pos) -> bool:
-        for page in self._page_trusteeship:
-            if page.in_area(mouse_pos):
-                return True
-        for slider in self._slider_trusteeship:
-            if slider.in_area(mouse_pos):
-                return True
+        for item in self.module_trusteeship:
+            if isinstance(item, BasicPage) or isinstance(item, BasicDropDown):
+                if item.in_area(mouse_pos):
+                    return True
         return False
 
     def in_area(self, mouse_pos, do_conflict_check = True):
@@ -80,10 +78,19 @@ class PlainPage(BasicPage):
         if self.pos_y > 0:
             self.pos_y /= self._acc
             self.in_active = True
+            if self.pos_y <= 1.5:
+                self.pos_y = 0
+                self._speed = 0
+                self.in_active = False
         elif self.pos_y < self.size[1] - self.real_size[1]:
             self.pos_y = (self.pos_y + self.real_size[1] - self.size[1]) / self._acc + self.size[1] - \
                          self.real_size[1]
-            self.in_active = True
+            if self.pos_y >= self.size[1] - self.real_size[1] - 1.5:
+                self.pos_y = self.size[1] - self.real_size[1]
+                self.in_active = False
+                self._speed = 0
+            else:
+                self.in_active = True
 
     def operate(self, mouse_pos, mouse_press, mouse_wheel_status=None, operate_addons=True):
         """
@@ -148,19 +155,27 @@ class PlainPage(BasicPage):
             else:
                 self._lock = False
         self._speed = round(self._speed, 3)
+        if abs(self._speed) <= 1.5:
+            self._speed = 0
         self.pos_y = round(self.pos_y, 3)
+        allow_unlock = True
         if operate_addons:
             virtual_mouse_pos = [mouse_pos[0] - self.pos[0], mouse_pos[1] - self.pos[1] - self.pos_y - self.delta]
             if not self.in_area(mouse_pos, False) and not self.sliding:
                 virtual_mouse_pos = [-1000000, -1000000]
             for module in self.module_trusteeship:
+                module.is_base_module = False
                 module.absolute_pos = [self.absolute_pos[0] + module.pos[0], self.absolute_pos[1] + module.pos[1] + self.delta + self.pos_y]
+                if isinstance(module, BasicPage) or isinstance(module, BasicDropDown):
+                    if module.in_area(virtual_mouse_pos):
+                        allow_unlock = False
                 module.operate(virtual_mouse_pos, mouse_press)
                 if isinstance(module, BasicButton):
                     if self.sliding:
                         module.cancel()
                 elif isinstance(module, BasicSurface):
                     module.run_check(virtual_mouse_pos, mouse_press)
+            # if allow_unlock
             # for item in self._button_trusteeship:
             #     item.operate(virtual_mouse_pos, mouse_press)
             #     if self.sliding:

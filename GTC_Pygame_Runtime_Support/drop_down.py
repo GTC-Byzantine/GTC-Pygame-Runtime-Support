@@ -1,3 +1,4 @@
+import GTC_Pygame_Runtime_Support
 import pygame
 import ctypes
 ctypes.windll.shcore.SetProcessDpiAwareness(2)
@@ -27,9 +28,11 @@ class SimpleDropDown(BasicDropDown):
         self.font_type = font_type
         self.button = FeedbackButton(self.size, self.pos, '<无>', self.font_size, screen, bg_color=(255, 255, 255), text_color=(0, 0, 0),
                                      border_color=(255, 255, 255))
+        self.button.is_base_module = False
         self.selecting = 0
         self.changed = False
         self.last_selecting = 0
+        self.last_pos = []
 
     def change_pos(self, pos):
         self.pos = pos
@@ -37,19 +40,26 @@ class SimpleDropDown(BasicDropDown):
 
     def in_area(self, mouse_pos: Coordinate):
         sta = False
-        if self.page is not None:
+        if self.page is not None and self.state == 'down':
             sta = sta or self.page.in_area(mouse_pos)
-        if self.slider is not None:
+        if self.slider is not None and self.state == 'down':
             sta = sta or self.slider.in_area(mouse_pos)
         return sta
 
     def operate(self, mouse_pos, mouse_press):
+        if self.last_pos != self.pos:
+            self.last_pos = self.pos.copy()
+            self.in_active = True
+
+        if self.is_base_module:
+            self.absolute_pos = self.pos
         if self.state == 'down' and mouse_press[self._click_index] and (not self.page.in_area(mouse_pos) and not self.page.sliding) and not self.button.in_area(
                 mouse_pos) and (self.slider is None or (not self.slider.in_area(mouse_pos) and (not self.slider.sliding))):
             self.state = 'up'
+            GTC_Pygame_Runtime_Support.refresh_stuck[(*self.page.absolute_pos, self.page.size[0] + 50, self.page.size[1])] = 1
         
         if self.last_selecting != self.selecting:
-            print(1)
+            # print(1)
             self.last_selecting = self.selecting
             self.button.change_text(self.items[self.selecting - 1])
             # self.changed = True
@@ -62,6 +72,8 @@ class SimpleDropDown(BasicDropDown):
                                       acc=1.2, wheel_support=False)
                 self.page.surface.fill((0, 0, 0, 0))
                 self.page.set_as_background()
+                self.page.is_base_module = False
+                self.page.absolute_pos = [self.absolute_pos[0], self.absolute_pos[1] + self.size[1]]
                 if len(self.items) > self.show_amount:
                     self.slider = VerticalSlideBar((self.size[0] // 10, self.page.size[1]),
                                                    (self.pos[0] + self.size[0], self.pos[1] + self.size[1]), self._screen,
@@ -78,8 +90,11 @@ class SimpleDropDown(BasicDropDown):
                 self.page.pos_y = 2 * len(self.items) * self.size[1]  # print(self.page.pos_y)
             # virtual_pos = [mouse_pos[0] - self.pos[0], mouse_pos[1] - self.pos[1] - self.size[1]]
             # print(virtual_pos)
+            self.page.absolute_pos = [self.absolute_pos[0], self.absolute_pos[1] + self.size[1]]
             self.page.operate(mouse_pos, mouse_press)
             if self.slider is not None:
+                self.slider.is_base_module = False
+                self.slider.absolute_pos = [self.absolute_pos[0] + self.size[0], self.absolute_pos[1] + self.size[1]]
                 self.slider.operate(mouse_pos, mouse_press)
                 if not self.slider.sliding:
                     self.slider.slide_pos = -(self.page.pos_y + self.page.delta) / (self.page.real_size[1] - self.page.size[1]) * (
@@ -89,9 +104,12 @@ class SimpleDropDown(BasicDropDown):
                     self.page.pos_y = -self.slider.percent * (self.page.real_size[1] - self.page.size[1])
             i = 1
             self.last_state = self.state
+            self.button.absolute_pos = self.absolute_pos.copy()
+            self.button.in_active = self.button.in_active or self.in_active
             self.button.operate(mouse_pos, mouse_press)
             if self.button.on_click:
                 self.state = 'down' if self.state == 'up' else 'up'
+                GTC_Pygame_Runtime_Support.refresh_stuck[(*self.page.absolute_pos, self.page.size[0] + 50, self.page.size[1])] = 1
             else:
                 for butt in self.buttons:
                     butt: SimpleButtonWithImage
@@ -108,10 +126,13 @@ class SimpleDropDown(BasicDropDown):
 
         else:
             self.last_state = self.state
+            self.button.in_active = self.in_active or self.button.in_active
+            self.button.absolute_pos = self.absolute_pos.copy()
             self.button.operate(mouse_pos, mouse_press)
             if self.button.on_click:
                 self.state = 'down' if self.state == 'up' else 'up'
-
+                # GTC_Pygame_Runtime_Support.refresh_stuck[(*self.page.absolute_pos, *self.page.size)] = 1
+        self.in_active = False
 
 if __name__ == '__main__':
     pygame.init()

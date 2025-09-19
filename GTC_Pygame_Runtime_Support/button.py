@@ -71,6 +71,7 @@ class FeedbackButton(BasicButton):
             self.absolute_pos = self.pos
         if self.last_absolute_pos != self.absolute_pos:
             self.in_active = True
+            GTC_Pygame_Runtime_Support.refresh_stuck[(self.last_absolute_pos[0] - 14, self.last_absolute_pos[1] - 14, self.size[0] + 28, self.size[1] + 28)] = 1
             self.last_absolute_pos = self.absolute_pos
         if self.in_area(mouse_pos):
             self.iter += self.speed
@@ -135,7 +136,7 @@ class FeedbackButton(BasicButton):
         self.frame.blit(self.text, self.font_rect)
         self.surface.blit(self.frame, self.pos)
         if self.in_active:
-            GTC_Pygame_Runtime_Support.refresh_stuck[self.absolute_pos[0] - 14, self.absolute_pos[1] - 14, self.size[0] + 28, self.size[1] + 28] = 4
+            GTC_Pygame_Runtime_Support.refresh_stuck[(self.absolute_pos[0] - 14, self.absolute_pos[1] - 14, self.size[0] + 28, self.size[1] + 28)] = 4
             self.in_active = False
 
     def change_pos(self, pos: Tuple[int, int]):
@@ -375,7 +376,7 @@ class SimpleButtonWithImage(BasicButton):
             self.surface.blit(self.text, self.text.get_rect(center=self.text_pos))
 
         if self.in_active:
-            GTC_Pygame_Runtime_Support.refresh_stuck[(*self.pos, *self.size)] = 1
+            GTC_Pygame_Runtime_Support.refresh_stuck[(*self.absolute_pos, *self.size)] = 1
             self.in_active = False
 
     def change_pos(self, pos: Tuple[int, int]):

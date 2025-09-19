@@ -36,6 +36,7 @@ class InputBox(BasicInputBox):
         self.text_surface = pygame.Surface((size[0] * 100, size[1] * 2)).convert_alpha()
         self.direct_status = [False, False]
         self.direct_timing = [0, 0]
+        self.apply_flip = 1
         self.operating = False
         self.cursor_position = 0
         self.cursor_timing = 0
@@ -139,6 +140,30 @@ class InputBox(BasicInputBox):
             self.dragging = False
         if mouse_press[0]:
             self.dragging = True
+
+        if self.operating:
+            self.apply_flip = 2
+        # print(1)
+        if not self.apply_flip:
+            self.surface.fill((0, 0, 0, 0))
+            if self.background is not None:
+                self.surface.blit(self.background, (0, 0))
+            else:
+                pygame.draw.rect(self.surface, self.background_color, (0, 0, *self.size), border_radius=self.border_radius)
+            if self.operating and (self.cursor_timing % (self.fps // 1) <= (self.fps // 2)):
+                pygame.draw.rect(self.text_surface, self.cursor_color,
+                                 (self.cursor_position_px, (self.size[1] - self.font_size) // 2 - self.extra_y, 2, self.font_size))
+
+            self.surface.blit(self.text_surface, (self.text_surface_pos + 4, self.extra_y))
+            self.last_clicked = mouse_press[0]
+
+            if self.operating:
+                item = 1
+            else:
+                item = 0
+            pygame.draw.rect(self.surface, self.border_color[item], (0, 0, *self.size), border_radius=self.border_radius, width=self.border_width)
+            self.screen.blit(self.surface, self.pos)
+            return
 
         if self.backspace_status:
             self.cursor_timing = 0
@@ -280,10 +305,10 @@ class InputBox(BasicInputBox):
             if min(self.selecting_pos) <= cnt < max(self.selecting_pos):
                 if self.operating:
                     pygame.draw.rect(self.text_surface, self.select_area_color[0],
-                                     (pos, (self.size[1] - self.font_size) // 2 + 1, c_surface.get_width(), self.font_size + 4))
+                                     (pos, (self.size[1] - self.font_size) // 2 - self.extra_y - 2, c_surface.get_width(), self.font_size + 4))
                 else:
                     pygame.draw.rect(self.text_surface, self.select_area_color[1],
-                                     (pos, (self.size[1] - self.font_size) // 2 - 2, c_surface.get_width(), self.font_size + 4))
+                                     (pos, (self.size[1] - self.font_size) // 2 - self.extra_y - 2, c_surface.get_width(), self.font_size + 4))
                 if self.do_color_reverse and self.operating:
                     c_surface = self.character_surface_reverse[cnt]
             self.text_surface.blit(c_surface, (pos, (self.size[1] - self.font_size) // 2))
@@ -331,13 +356,14 @@ class InputBox(BasicInputBox):
         if self.operating:
             item = 1
             self.in_active = True
+            self.apply_flip = 2
         else:
             item = 0
         pygame.draw.rect(self.surface, self.border_color[item], (0, 0, *self.size), border_radius=self.border_radius, width=self.border_width)
         self.screen.blit(self.surface, self.pos)
 
         if self.in_active:
-            GTC_Pygame_Runtime_Support.refresh_stuck[(*self.pos, *self.size)] = 1
+            GTC_Pygame_Runtime_Support.refresh_stuck[(*self.absolute_pos, *self.size)] = 1
             self.in_active = False
 
 

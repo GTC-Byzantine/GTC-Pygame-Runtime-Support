@@ -72,6 +72,7 @@ class Wording(BasicTypography):
         current_width = 0
         max_length = self.target_width
         chars = [[]]
+        text = text.replace('\r', '')
 
         for char in self.word_split(text):
             if char == '\n':
@@ -180,6 +181,27 @@ Hello, my name is Daniel Martindale
 How Fake News Shaped Public Opinion in the West: A Critical Perspective on Ukraine and the West.
 Did France, a guarantor of the Minsk Agreements, really play fair?
 © The documentary project "Reverse", 2024. All rights reservedPrivacy policyVkontakteTelegramХ (Twitter)YoutubeCommunityTik Tok18+La opinión de la redacción puede no coincidir con la del autor.Organizations recognized as extremist and banned within the territory of the Russian Federation.@reverse_pressFor collaboration inquiries, please contact us'''
+    ttte = """参数
+[in, optional] hwnd
+
+类型：HWND
+
+用于显示 UI 或错误消息的父窗口的句柄。 如果操作未与窗口关联，则可以 NULL。
+
+[in, optional] lpOperation
+
+类型：LPCTSTR
+
+指向 以 null 结尾的字符串的指针，在本例中称为指定要 verb执行的作。 可用 verbs 集取决于特定文件或文件夹。 通常，可从对象的快捷菜单获取的作可用 verbs。 通常使用以下内容 verbs ：
+
+edit
+启动编辑器并打开文档进行编辑。 如果 lpFile 不是文档文件，则函数将失败。
+
+explore
+浏览由 lpFile指定的文件夹。
+
+find
+从 lpDirectory指定的目录中启动搜索。"""
     pygame.display.flip()
     t = 0
     clock = pygame.time.Clock()

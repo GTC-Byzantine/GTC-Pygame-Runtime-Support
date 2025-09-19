@@ -1,7 +1,7 @@
 import os
 
 import GTC_Pygame_Runtime_Support
-from GTC_Pygame_Runtime_Support.basic_class import BasicAdjustBox
+from GTC_Pygame_Runtime_Support.basic_class import BasicAdjustBox, BasicButton
 from GTC_Pygame_Runtime_Support.supported_types import *
 from GTC_Pygame_Runtime_Support.button import FeedbackButton
 from typing import List, Tuple, Union
@@ -24,7 +24,7 @@ class SimpleAdjustBox(BasicAdjustBox):
         self.font_color = font_color
         self.surface = pygame.Surface(size).convert_alpha()
         self.bg_color = background_color
-        self.buttons = []
+        self.buttons: List[List[BasicButton]] = []
         self.value = default_value
         self.last_value = None
         self.text_sur = None
@@ -35,13 +35,17 @@ class SimpleAdjustBox(BasicAdjustBox):
             self.buttons[-1].append(
                 FeedbackButton([size[1], size[1]], [0, 0], '-' + str(step), self.font_size, screen, font_type=font_type, bg_color=button_color,
                                border_color=button_color, text_color=font_color))
+            self.buttons[-1][-1].is_base_module = False
             self.buttons[-1].append(
                 FeedbackButton([size[1], size[1]], [0, 0], '+' + str(step), self.font_size, screen, font_type=font_type, bg_color=button_color,
                                border_color=button_color, text_color=font_color))
+            self.buttons[-1][-1].is_base_module = False
 
     def operate(self, mouse_pos, mouse_press):
         self.in_active = False
         self.surface.fill((0, 0, 0, 0))
+        if self.is_base_module:
+            self.absolute_pos = self.pos
         pygame.draw.rect(self.surface, self.bg_color, [0, 0, *self.size], border_radius=self.size[1] // 4)
         if self.last_value is None or self.last_value != self.value:
             self.text_sur = self.font.render(str(self.value), 1, self.font_color)
@@ -51,10 +55,12 @@ class SimpleAdjustBox(BasicAdjustBox):
         self.surface.blit(self.text_sur, self.text_rect)
         self._screen.blit(self.surface, self.pos)
         if self.in_active:
-            GTC_Pygame_Runtime_Support.refresh_stuck[(*self.pos, *self.size)] = 1
+            GTC_Pygame_Runtime_Support.refresh_stuck[(*self.absolute_pos, *self.size)] = 1
         for i in range(len(self.buttons)):
             self.buttons[i][0].change_pos([self.pos[0] - (i + 1) * (self.size[1] + 5), self.pos[1]])
+            self.buttons[i][0].absolute_pos = [self.absolute_pos[0] - (i + 1) * (self.size[1] + 5), self.absolute_pos[1]]
             self.buttons[i][1].change_pos([self.pos[0] + self.size[0] + 5 + i * (self.size[1] + 5), self.pos[1]])
+            self.buttons[i][1].absolute_pos = [self.absolute_pos[0] + self.size[0] + 5 + i * (self.size[1] + 5), self.absolute_pos[1]]
             for t in [0, 1]:
                 self.buttons[i][t].operate(mouse_pos, mouse_press)
                 if self.buttons[i][t].on_click:

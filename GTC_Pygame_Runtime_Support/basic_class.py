@@ -19,7 +19,7 @@ class Module(object):
     pos = [0, 0]
     size = [0, 0]
     in_active = False
-    last_absolute_pos = []
+    last_absolute_pos = [0, 0]
 
     def in_area(self, mouse_pos: Coordinate):
         if self.pos[0] <= mouse_pos[0] <= self.size[0] + self.pos[0] and self.pos[1] <= mouse_pos[1] <= self.size[1] + self.pos[1]:
@@ -27,6 +27,8 @@ class Module(object):
         return False
 
     def change_pos(self, pos):
+        if self.pos != pos:
+            GTC_Pygame_Runtime_Support.refresh_stuck[(*self.pos, *self.size)] = 1
         self.pos = pos
 
 
@@ -39,8 +41,10 @@ class Function(object):
 
 
 class BasicButton(Module):
+    state = False
 
     def __init__(self, pos):
+        self.on_click = False
         self.state = False
         self.do_cancel = False
         self.cp = []
@@ -177,7 +181,6 @@ class Container:
         self.module_trusteeship.append(item)
         item.is_base_module = False
         self.do_element_show.append(False)
-        # print(self.do_element_show, len(self.module_trusteeship))
 
     def show_slider_trusteeship(self):
         return self._slider_trusteeship
